@@ -152,12 +152,22 @@ class NadraController extends Controller
 
     public function update(Request $request, $id)
     {
+        $record = NadraRecord::findOrFail($id);
+        $category = $record->fileUpload->category;
+
         $request->validate([
             'full_name' => 'required|string|max:255',
             'father_name' => 'required|string|max:255',
             'gender' => 'required|in:Male,Female,Other',
             'date_of_birth' => 'required|date',
-            'cnic_number' => ['required', 'regex:/^[0-9]{5}-[0-9]{7}-[0-9]$/', 'unique:nadra_records,cnic_number,' . $id],
+            'cnic_number' => [
+                'required',
+                'regex:/^[0-9]{5}-[0-9]{7}-[0-9]$/',
+                Rule::unique('nadra_records', 'cnic_number')->where(function ($query) use ($id) {
+                    $record = NadraRecord::findOrFail($id);
+                    return $query->where('file_upload_id', $record->file_upload_id);
+                })->ignore($id),
+            ],
             'family_id' => 'nullable|string|max:255',
             'addresses' => 'nullable|string',
             'province' => 'nullable|string|max:255',

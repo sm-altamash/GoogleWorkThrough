@@ -56,3 +56,13 @@ class CreateNadraRecordsTable extends Migration
         });
     }
 }
+
+// Migration for nadra_records table
+Schema::table('nadra_records', function (Blueprint $table) {
+    // Drop existing unique index
+    $table->dropUnique(['cnic_number']);
+
+    // Add new composite index (requires category in nadra_records)
+    $table->string('category')->after('file_upload_id'); // Add category column
+    $table->unique(['cnic_number', 'category']);
+});

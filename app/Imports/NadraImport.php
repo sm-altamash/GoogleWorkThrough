@@ -38,11 +38,15 @@ class NadraImport implements ToModel, WithHeadingRow, WithValidation
 
     public function rules(): array
     {
+        $category = FileUpload::where('id', $this->fileUploadId)->value('category');
+
         return [
             'cnic_number' => [
                 'required',
                 'regex:/^\d{5}-\d{7}-\d{1}$/',
-                Rule::unique('nadra_records', 'cnic_number')
+                Rule::unique('nadra_records', 'cnic_number')->where(function ($query) {
+                    return $query->where('file_upload_id', $this->fileUploadId);
+                }),
             ],
             'full_name' => 'required|string|max:255',
             'father_name' => 'required|string|max:255',
