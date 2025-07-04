@@ -15,7 +15,8 @@ class NadraController extends Controller
     {
         if ($request->ajax()) {
             $data = NadraRecord::with('fileUpload')
-                ->select(['id', 'full_name', 'father_name', 'gender', 'date_of_birth', 'cnic_number', 'family_id', 'addresses', 'province', 'district', 'file_upload_id']);
+                ->select(['id', 'full_name', 'father_name', 'gender', 'date_of_birth', 'cnic_number', 'family_id', 'addresses', 'province', 'district', 'file_upload_id'])
+                ->orderBy('id', 'asc'); // Add consistent ordering
 
             return DataTables::of($data)
                 ->addIndexColumn()
@@ -25,7 +26,13 @@ class NadraController extends Controller
                     return $editBtn . $deleteBtn;
                 })
                 ->addColumn('category', function($row){
-                    return $row->fileUpload ? $row->fileUpload->category : 'N/A';
+                    return $row->fileUpload ? $row->fileUpload->category : '2025';
+                })
+                ->editColumn('date_of_birth', function($row){
+                    return $row->date_of_birth ? date('Y-m-d', strtotime($row->date_of_birth)) : '-';
+                })
+                ->editColumn('addresses', function($row){
+                    return $row->addresses ? (strlen($row->addresses) > 50 ? substr($row->addresses, 0, 50) . '...' : $row->addresses) : '-';
                 })
                 ->rawColumns(['action'])
                 ->make(true);

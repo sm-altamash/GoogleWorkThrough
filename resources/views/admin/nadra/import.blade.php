@@ -189,7 +189,8 @@ $(document).ready(function() {
         processing: true,
         serverSide: true,
         responsive: true,
-        ordering: false,
+        ordering: true,
+        order: [[1, 'asc']], // Order by ID column (index 1) ascending
         ajax: {
             url: "{{ route('nadra.index') }}",
             error: function(xhr, error, code) {
@@ -213,43 +214,53 @@ $(document).ready(function() {
             },
             {
                 data: 'full_name',
-                name: 'full_name'
+                name: 'full_name',
+                orderable: true
             },
             {
                 data: 'father_name',
-                name: 'father_name'
+                name: 'father_name',
+                orderable: true
             },
             {
                 data: 'gender',
-                name: 'gender'
+                name: 'gender',
+                orderable: true
             },
             {
                 data: 'date_of_birth',
-                name: 'date_of_birth'
+                name: 'date_of_birth',
+                orderable: true
             },
             {
                 data: 'cnic_number',
-                name: 'cnic_number'
+                name: 'cnic_number',
+                orderable: true
             },
             {
                 data: 'family_id',
-                name: 'family_id'
+                name: 'family_id',
+                orderable: true
             },
             {
                 data: 'addresses',
-                name: 'addresses'
+                name: 'addresses',
+                orderable: false
             },
             {
                 data: 'province',
-                name: 'province'
+                name: 'province',
+                orderable: true
             },
             {
                 data: 'district',
-                name: 'district'
+                name: 'district',
+                orderable: true
             },
             {
                 data: 'category',
-                name: 'category'
+                name: 'category',
+                orderable: true
             },
             {
                 data: 'action',
@@ -273,9 +284,6 @@ $(document).ready(function() {
                 "defaultContent": "-",
                 "targets": "_all"
             }
-        ],
-        order: [
-            [2, 'desc']
         ],
         dom: '<"card-header flex-column flex-md-row"<"head-label text-center"><"dt-action-buttons text-end pt-3 pt-md-0"B>><"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>t<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
         displayLength: 5,
@@ -365,7 +373,14 @@ $(document).ready(function() {
                     return data ? $('<table class="table"/><tbody />').append(data) : false;
                 }
             }
-        }
+        },
+        // Force consistent data loading
+        stateSave: false,
+        // Ensure proper pagination
+        paging: true,
+        pageLength: 5,
+        // Force reload on each page change
+        deferRender: false
     });
 
     $('div.head-label').html('<h5 class="card-title mb-0">Nadra Records</h5>');
@@ -501,6 +516,39 @@ $(document).ready(function() {
         });
     }
 
+    // Handle Edit Button Click
+    $(document).on('click', '.edit-btn', function() {
+        var recordId = $(this).data('id');
+        
+        $.ajax({
+            url: "{{ route('nadra.edit', '') }}/" + recordId,
+            type: "GET",
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                $('#edit_record_id').val(response.id);
+                $('#edit_full_name').val(response.full_name);
+                $('#edit_father_name').val(response.father_name);
+                $('#edit_gender').val(response.gender);
+                $('#edit_date_of_birth').val(response.date_of_birth);
+                $('#edit_cnic_number').val(response.cnic_number);
+                $('#edit_family_id').val(response.family_id);
+                $('#edit_addresses').val(response.addresses);
+                $('#edit_province').val(response.province);
+                $('#edit_district').val(response.district);
+            },
+            error: function(jqXHR, exception) {
+                console.log('Edit load error:', jqXHR.responseText);
+                if (typeof ShowToast === 'function') {
+                    ShowToast('error', 'Error loading record data');
+                } else {
+                    alert('Error loading record data');
+                }
+            }
+        });
+    });
+
     // Edit Form Handler
     $('#editNadraform').submit(function(e) {
         e.preventDefault();
@@ -539,69 +587,38 @@ $(document).ready(function() {
                         }
                     });
                 } else {
-                    var message = 'An error occurred! Please contact administrator.';
+                    var errorMessage = jqXHR.responseJSON && jqXHR.responseJSON.message ? 
+                        jqXHR.responseJSON.message : 'An error occurred while updating the record';
+                    
                     if (typeof ShowToast === 'function') {
-                        ShowToast('error', message);
+                        ShowToast('error', errorMessage);
                     } else {
-                        alert(message);
+                        alert('Error: ' + errorMessage);
                     }
                 }
             }
         });
     });
 
-    // Edit Button Click Handler
-    $(document).on('click', '.edit-btn', function() {
-        var recordId = $(this).data('id');
-
-        // Clear form first
-        $('#editNadraform')[0].reset();
-
-        // Fetch record data
-        $.ajax({
-            url: "{{ route('nadra.edit', '') }}/" + recordId,
-            type: "GET",
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(response) {
-                console.log('Edit response:', response);
-
-                $('#edit_record_id').val(response.id);
-                $('#edit_full_name').val(response.full_name);
-                $('#edit_father_name').val(response.father_name);
-                $('#edit_gender').val(response.gender);
-                $('#edit_date_of_birth').val(response.date_of_birth);
-                $('#edit_cnic_number').val(response.cnic_number);
-                $('#edit_family_id').val(response.family_id);
-                $('#edit_addresses').val(response.addresses);
-                $('#edit_province').val(response.province);
-                $('#edit_district').val(response.district);
-            },
-            error: function(jqXHR, exception) {
-                console.log('Edit fetch error:', jqXHR.responseText);
-                if (typeof ShowToast === 'function') {
-                    ShowToast('error', 'Error fetching record data');
-                } else {
-                    alert('Error fetching record data');
-                }
-            }
-        });
-    });
-
-    // Delete Button Click Handler
+    // Handle Delete Button Click
     $(document).on('click', '.delete-btn', function() {
         var recordId = $(this).data('id');
-
+        
         if (confirm('Are you sure you want to delete this record?')) {
             $.ajax({
                 url: "{{ route('nadra.destroy', '') }}/" + recordId,
-                type: "DELETE",
+                type: "POST", // Change from DELETE to POST
+                data: {
+                    '_method': 'DELETE', // Laravel method spoofing
+                    '_token': $('meta[name="csrf-token"]').attr('content') // Add CSRF token in data
+                },
                 headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'), // Keep this as backup
+                    'Content-Type': 'application/x-www-form-urlencoded' // Ensure proper content type
                 },
                 success: function(response) {
                     dataTable.ajax.reload();
+                    
                     if (typeof ShowToast === 'function') {
                         ShowToast('success', response.message || 'Record deleted successfully');
                     } else {
@@ -610,15 +627,53 @@ $(document).ready(function() {
                 },
                 error: function(jqXHR, exception) {
                     console.log('Delete error:', jqXHR.responseText);
+                    console.log('Response status:', jqXHR.status);
+                    
+                    var errorMessage = jqXHR.responseJSON && jqXHR.responseJSON.message ? 
+                        jqXHR.responseJSON.message : 'An error occurred while deleting the record';
+                    
                     if (typeof ShowToast === 'function') {
-                        ShowToast('error', 'Error deleting record');
+                        ShowToast('error', errorMessage);
                     } else {
-                        alert('Error deleting record');
+                        alert('Error: ' + errorMessage);
                     }
                 }
             });
         }
     });
+
+    // Handle form submission for file upload
+    $('#addNadraform').submit(function(e) {
+        // Show loading state
+        $(this).find('button[type="submit"]').prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Uploading...');
+    });
+
+    // Reset form when modal is hidden
+    $('#addNadraModal').on('hidden.bs.modal', function() {
+        $('#addNadraform')[0].reset();
+        $('#addNadraform').find('button[type="submit"]').prop('disabled', false).html('Upload File');
+    });
+
+    $('#editNadraModal').on('hidden.bs.modal', function() {
+        $('#editNadraform')[0].reset();
+    });
+
+    // CNIC formatting for edit modal
+    $('#edit_cnic_number').on('input', function() {
+        let value = $(this).val().replace(/[^0-9]/g, '');
+        
+        if (value.length >= 5) {
+            value = value.substring(0, 5) + '-' + value.substring(5);
+        }
+        if (value.length >= 13) {
+            value = value.substring(0, 13) + '-' + value.substring(13);
+        }
+        if (value.length > 15) {
+            value = value.substring(0, 15);
+        }
+        
+        $(this).val(value);
+    });
 });
-</script>
+    </script>
 @endsection
