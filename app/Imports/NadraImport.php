@@ -3,6 +3,7 @@
 namespace App\Imports;
 
 use App\Models\NadraRecord;
+use App\Models\FileUpload;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
