@@ -8,6 +8,7 @@ use App\Models\NadraRecord;
 use App\Models\FileUpload;
 use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\DataTables;
+use Maatwebsite\Excel\Validators\ValidationException;
 
 class NadraController extends Controller
 {
@@ -52,7 +53,7 @@ class NadraController extends Controller
             $file = $request->file('excel_file');
             $originalFilename = $file->getClientOriginalName();
             $storedFilename = time() . '_' . $originalFilename;
-            
+
             // Store file info first
             $fileUpload = FileUpload::create([
                 'original_filename' => $originalFilename,
@@ -68,9 +69,43 @@ class NadraController extends Controller
             $totalRecords = NadraRecord::where('file_upload_id', $fileUpload->id)->count();
             $fileUpload->update(['total_records' => $totalRecords]);
 
-            return redirect()->back()->with('success', 'Data imported successfully!');
+            return redirect()->back()->with('success', 'Data imported successfully! Total records: ' . $totalRecords);
+
+        } catch (ValidationException $e) {
+            // Handle validation errors from Excel import
+            $failures = $e->failures();
+            $errorMessages = [];
+
+            foreach ($failures as $failure) {
+                $row = $failure->row();
+                $errors = $failure->errors();
+                $values = $failure->values();
+
+                foreach ($errors as $error) {
+                    $cnicNumber = isset($values['cnic_number']) ? $values['cnic_number'] : 'N/A';
+                    $errorMessages[] = "Row {$row}: {$error} (CNIC: {$cnicNumber})";
+                }
+            }
+
+            // If some records were imported successfully, update the count
+            if (isset($fileUpload)) {
+                $totalRecords = NadraRecord::where('file_upload_id', $fileUpload->id)->count();
+                $fileUpload->update(['total_records' => $totalRecords]);
+            }
+
+            $errorMessage = "Import completed with errors:\n" . implode("\n", array_slice($errorMessages, 0, 10));
+            if (count($errorMessages) > 10) {
+                $errorMessage .= "\n... and " . (count($errorMessages) - 10) . " more errors.";
+            }
+
+            return redirect()->back()->with('warning', $errorMessage);
 
         } catch (\Exception $e) {
+            // Clean up file upload record if it was created but import failed
+            if (isset($fileUpload)) {
+                $fileUpload->delete();
+            }
+
             return redirect()->back()->with('error', 'Error importing data: ' . $e->getMessage());
         }
     }
@@ -161,5 +196,24 @@ class NadraController extends Controller
                 'message' => 'Error deleting record: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    public function checkDuplicateCnic(Request $request)
+    {
+        $cnic = $request->input('cnic');
+        $excludeId = $request->input('exclude_id');
+
+        $query = NadraRecord::where('cnic_number', $cnic);
+
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+
+        $exists = $query->exists();
+
+        return response()->json([
+            'exists' => $exists,
+            'message' => $exists ? 'CNIC number already exists in the database.' : 'CNIC number is available.'
+        ]);
     }
 }

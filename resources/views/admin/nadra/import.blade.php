@@ -142,9 +142,9 @@
                             <h3 class="mb-2">Uploaded Files Details</h3>
                             <p class="text-muted">View all uploaded files and their data.</p>
                         </div>
-                        
+
                         <div class="row">
-                            <div class="col-md-4">
+                            <div class="col-md-12">
                                 <div class="card">
                                     <div class="card-header">
                                         <h5 class="card-title mb-0">Uploaded Files</h5>
@@ -156,7 +156,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-8">
+                            <div class="col-md-12">
                                 <div class="card">
                                     <div class="card-header">
                                         <h5 class="card-title mb-0">File Data</h5>
@@ -432,19 +432,19 @@ $(document).ready(function() {
     $(document).on('click', '.file-item', function(e) {
         e.preventDefault();
         var fileId = $(this).data('file-id');
-        
+
         // Remove active class from all items
         $('.file-item').removeClass('active');
         // Add active class to clicked item
         $(this).addClass('active');
-        
+
         loadFileData(fileId);
     });
 
     // Load file data
     function loadFileData(fileId) {
         $('#fileDataContainer').html('<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
-        
+
         $.ajax({
             url: "{{ route('nadra.file-data', '') }}/" + fileId,
             type: "GET",
@@ -455,7 +455,7 @@ $(document).ready(function() {
                 var fileInfo = response.file;
                 var records = response.records;
                 var uploadedDate = new Date(fileInfo.uploaded_at).toLocaleDateString();
-                
+
                 var html = `
                     <div class="mb-3">
                         <h6>File Information</h6>
@@ -486,7 +486,7 @@ $(document).ready(function() {
                             </thead>
                             <tbody>
                 `;
-                
+
                 records.forEach(function(record) {
                     html += `
                         <tr>
@@ -500,13 +500,13 @@ $(document).ready(function() {
                         </tr>
                     `;
                 });
-                
+
                 html += `
                             </tbody>
                         </table>
                     </div>
                 `;
-                
+
                 $('#fileDataContainer').html(html);
             },
             error: function(jqXHR, exception) {
@@ -519,7 +519,7 @@ $(document).ready(function() {
     // Handle Edit Button Click
     $(document).on('click', '.edit-btn', function() {
         var recordId = $(this).data('id');
-        
+
         $.ajax({
             url: "{{ route('nadra.edit', '') }}/" + recordId,
             type: "GET",
@@ -587,9 +587,9 @@ $(document).ready(function() {
                         }
                     });
                 } else {
-                    var errorMessage = jqXHR.responseJSON && jqXHR.responseJSON.message ? 
+                    var errorMessage = jqXHR.responseJSON && jqXHR.responseJSON.message ?
                         jqXHR.responseJSON.message : 'An error occurred while updating the record';
-                    
+
                     if (typeof ShowToast === 'function') {
                         ShowToast('error', errorMessage);
                     } else {
@@ -603,7 +603,7 @@ $(document).ready(function() {
     // Handle Delete Button Click
     $(document).on('click', '.delete-btn', function() {
         var recordId = $(this).data('id');
-        
+
         if (confirm('Are you sure you want to delete this record?')) {
             $.ajax({
                 url: "{{ route('nadra.destroy', '') }}/" + recordId,
@@ -618,7 +618,7 @@ $(document).ready(function() {
                 },
                 success: function(response) {
                     dataTable.ajax.reload();
-                    
+
                     if (typeof ShowToast === 'function') {
                         ShowToast('success', response.message || 'Record deleted successfully');
                     } else {
@@ -628,10 +628,10 @@ $(document).ready(function() {
                 error: function(jqXHR, exception) {
                     console.log('Delete error:', jqXHR.responseText);
                     console.log('Response status:', jqXHR.status);
-                    
-                    var errorMessage = jqXHR.responseJSON && jqXHR.responseJSON.message ? 
+
+                    var errorMessage = jqXHR.responseJSON && jqXHR.responseJSON.message ?
                         jqXHR.responseJSON.message : 'An error occurred while deleting the record';
-                    
+
                     if (typeof ShowToast === 'function') {
                         ShowToast('error', errorMessage);
                     } else {
@@ -661,7 +661,7 @@ $(document).ready(function() {
     // CNIC formatting for edit modal
     $('#edit_cnic_number').on('input', function() {
         let value = $(this).val().replace(/[^0-9]/g, '');
-        
+
         if (value.length >= 5) {
             value = value.substring(0, 5) + '-' + value.substring(5);
         }
@@ -671,7 +671,7 @@ $(document).ready(function() {
         if (value.length > 15) {
             value = value.substring(0, 15);
         }
-        
+
         $(this).val(value);
     });
 });

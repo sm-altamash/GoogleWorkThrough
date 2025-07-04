@@ -6,9 +6,10 @@ use App\Models\NadraRecord;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Concerns\Importable;
 
-class NadraImport implements ToModel, WithHeadingRow
+class NadraImport implements ToModel, WithHeadingRow, WithValidation
 {
     use Importable;
 
@@ -35,11 +36,37 @@ class NadraImport implements ToModel, WithHeadingRow
         ]);
     }
 
-    public function customValidationMessages()
+    public function rules(): array
     {
         return [
+            'cnic_number' => [
+                'required',
+                'regex:/^\d{5}-\d{7}-\d{1}$/',
+                Rule::unique('nadra_records', 'cnic_number')
+            ],
+            'full_name' => 'required|string|max:255',
+            'father_name' => 'required|string|max:255',
+            'gender' => 'required|in:Male,Female,Other',
+            'date_of_birth' => 'required|date',
+            'family_id' => 'nullable|string|max:255',
+            'addresses' => 'nullable|string',
+            'province' => 'nullable|string|max:255',
+            'district' => 'nullable|string|max:255',
+        ];
+    }
+
+    public function customValidationMessages(): array
+    {
+        return [
+            'cnic_number.required' => 'The CNIC number is required.',
             'cnic_number.regex' => 'The CNIC number must be in the format 12345-1234567-1.',
+            'cnic_number.unique' => 'The CNIC number has already been taken.',
+            'full_name.required' => 'The full name is required.',
+            'father_name.required' => 'The father name is required.',
+            'gender.required' => 'Gender is required.',
             'gender.in' => 'Gender must be Male, Female, or Other.',
+            'date_of_birth.required' => 'Date of birth is required.',
+            'date_of_birth.date' => 'Date of birth must be a valid date.',
         ];
     }
 }
