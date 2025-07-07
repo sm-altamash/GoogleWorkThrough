@@ -3,21 +3,24 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use App\Services\GoogleClientService;
+use App\Services\GoogleCalendarService;
+
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
-    public function register(): void
+    public function register()
     {
-        //
+        $this->app->singleton(GoogleClientService::class, function ($app) {
+            return new GoogleClientService();
+        });
+
+        $this->app->singleton(GoogleCalendarService::class, function ($app) {
+            return new GoogleCalendarService($app->make(GoogleClientService::class));
+        });
     }
 
-    /**
-     * Bootstrap any application services.
-     */
-    public function boot(): void
+    public function boot()
     {
         //
     }

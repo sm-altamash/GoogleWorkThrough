@@ -20,14 +20,25 @@
         </a>
     </li>
 
-    <!-- Nadra Importst -->
+    <!-- Nadra Import -->
     <li class="menu-header small text-uppercase">
         <span class="menu-header-text" data-i18n="Nadra Imports">Nadra Imports</span>
     </li>
-    <li class="menu-item {{ request()->segment(1) == 'roles' || request()->segment(1) == 'permissions' ? 'active' : ''}}">
+    <li class="menu-item {{ request()->segment(1) == 'nadra' || request()->segment(1) == 'permissions' ? 'active' : ''}}">
         <a href="{{route('nadra.index')}}" class="menu-link">
             <i class="menu-icon tf-icons ti ti-devices-bolt"></i>
             <div>Nadra Excel Upload</div>
+        </a>
+    </li>
+
+    <!-- Google Calender -->
+    <li class="menu-header small text-uppercase">
+        <span class="menu-header-text" data-i18n="Nadra Imports">Nadra Imports</span>
+    </li>
+    <li class="menu-item {{ request()->segment(1) == 'calendar' || request()->segment(1) == 'permissions' ? 'active' : ''}}">
+        <a href="{{route('calendar.index')}}" class="menu-link">
+            <i class="menu-icon tf-icons ti ti-calendar"></i>
+            <div>Google Calendar</div>
         </a>
     </li>
 
