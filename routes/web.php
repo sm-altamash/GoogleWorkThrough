@@ -9,24 +9,15 @@ use App\Http\Controllers\NadraController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
-
-Route::get('/', function () {
-    return redirect('/login');
-});
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
+
+    Route::get('/', function () {
+    return redirect('/login');
+    }); 
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -37,18 +28,22 @@ Route::middleware('auth')->group(function () {
     Route::resource('users',UserController::class);
 
 
-        // NADRA Routes
+    // NADRA Routes
     Route::prefix('admin/nadra')->name('nadra.')->group(function () {
         Route::get('/', [NadraController::class, 'index'])->name('index');
         Route::post('/import', [NadraController::class, 'import'])->name('import');
         Route::get('/edit/{id}', [NadraController::class, 'edit'])->name('edit');
-        Route::put('/update/{id}', [NadraController::class, 'update'])->name('update');
-        Route::delete('/destroy/{id}', [NadraController::class, 'destroy'])->name('destroy');
+        
+        Route::post('/update/{id}', [NadraController::class, 'update'])->name('update');
+        
+        Route::post('/destroy/{id}', [NadraController::class, 'destroy'])->name('destroy');
 
-        // Routes for file management
         Route::get('/uploaded-files', [NadraController::class, 'getUploadedFiles'])->name('uploaded-files');
         Route::get('/file-data/{fileId}', [NadraController::class, 'getFileData'])->name('file-data');
+        
+        Route::post('/check-cnic', [NadraController::class, 'checkDuplicateCnic'])->name('check-cnic');
     });
+  
     
 });
 
