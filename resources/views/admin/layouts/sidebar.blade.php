@@ -1,6 +1,7 @@
 <div class="app-brand demo">
+
     <a href="index.html" class="app-brand-link">
-        <span class="app-brand-text demo menu-text fw-bold">Nadra Records</span>
+        <span class="app-brand-text demo menu-text fw-bold">Administration</span>
     </a>
 
     <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto">
@@ -33,7 +34,7 @@
 
     <!-- Google Calender -->
     <li class="menu-header small text-uppercase">
-        <span class="menu-header-text" data-i18n="Nadra Imports">Nadra Imports</span>
+        <span class="menu-header-text" data-i18n="Google Calendar">Google Calendar</span>
     </li>
     <li class="menu-item {{ request()->segment(1) == 'calendar' || request()->segment(1) == 'permissions' ? 'active' : ''}}">
         <a href="{{route('calendar.index')}}" class="menu-link">
