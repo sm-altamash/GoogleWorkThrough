@@ -110,3 +110,4 @@ class GoogleCalendarService
         return $results->getItems();
     }
 }
+

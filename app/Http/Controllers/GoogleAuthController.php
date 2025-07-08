@@ -6,6 +6,7 @@ use App\Services\GoogleClientService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 
 class GoogleAuthController extends Controller
 {
@@ -16,42 +17,101 @@ class GoogleAuthController extends Controller
         $this->googleClientService = $googleClientService;
     }
 
-    public function redirect(): JsonResponse
-    {
-        $authUrl = $this->googleClientService->getAuthUrl();
-        
-        return response()->json([
-            'success' => true,
-            'auth_url' => $authUrl
-        ]);
-    }
-
-    public function callback(Request $request): JsonResponse
+    /**
+     * Redirect to Google OAuth - returns redirect response instead of JSON
+     */
+    public function redirect(): \Illuminate\Http\RedirectResponse
     {
         try {
-            $code = $request->get('code');
-            
-            if (!$code) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Authorization code not provided'
-                ], 400);
+            $user = Auth::user();
+            if (!$user) {
+                return redirect()->route('login')->with('error', 'Please log in first');
             }
 
-            $tokenData = $this->googleClientService->getAccessToken($code);
-            $user = Auth::user();
+            $authUrl = $this->googleClientService->getAuthUrl();
             
+            Log::info('Google Auth URL generated for user:', [
+                'user_id' => $user->id,
+                'url' => $authUrl
+            ]);
+            
+            // Directly redirect to Google OAuth instead of returning JSON
+            return redirect($authUrl);
+            
+        } catch (\Exception $e) {
+            Log::error('Error generating Google auth URL:', [
+                'user_id' => Auth::id(),
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return redirect()->back()->with('error', 'Failed to connect to Google. Please try again.');
+        }
+    }
+
+    /**
+     * Handle Google OAuth callback
+     */
+    public function callback(Request $request)
+    {
+        try {
+            $user = Auth::user();
+            if (!$user) {
+                Log::warning('Google callback attempted without authenticated user');
+                return redirect()->route('login')->with('error', 'Please log in to connect your Google account');
+            }
+
+            // Debug: Log all incoming parameters
+            Log::info('Google callback parameters:', [
+                'user_id' => $user->id,
+                'params' => $request->all(),
+                'url' => $request->fullUrl()
+            ]);
+            
+            // Check if there's an error parameter
+            if ($request->has('error')) {
+                Log::error('Google OAuth error:', [
+                    'user_id' => $user->id,
+                    'error' => $request->get('error'),
+                    'error_description' => $request->get('error_description')
+                ]);
+                
+                return redirect()->route('dashboard')->with('error', 'Google connection failed: ' . $request->get('error_description', $request->get('error')));
+            }
+            
+            $code = $request->get('code');
+            if (!$code) {
+                Log::error('No authorization code received:', [
+                    'user_id' => $user->id,
+                    'params' => $request->all(),
+                    'query_string' => $request->getQueryString(),
+                    'full_url' => $request->fullUrl()
+                ]);
+                
+                return redirect()->route('dashboard')->with('error', 'Authorization code not received from Google');
+            }
+
+            Log::info('Attempting to get access token:', [
+                'user_id' => $user->id,
+                'code' => substr($code, 0, 10) . '...'
+            ]);
+            
+            $tokenData = $this->googleClientService->getAccessToken($code);
             $this->googleClientService->storeToken($user, $tokenData);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Google account connected successfully'
-            ]);
+            Log::info('Google token stored successfully:', ['user_id' => $user->id]);
+
+            return redirect()->route('dashboard')->with('success', 'Google account connected successfully!');
+            
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage()
-            ], 500);
+            Log::error('Google callback error:', [
+                'user_id' => Auth::id(),
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'request_data' => $request->all()
+            ]);
+            
+            return redirect()->route('dashboard')->with('error', 'Failed to connect Google account: ' . $e->getMessage());
         }
     }
 }

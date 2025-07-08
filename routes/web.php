@@ -10,13 +10,11 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\GoogleCalendarController;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
 
 
 Route::get('/', function () {
     return redirect('/login');
 });
-
 
 require __DIR__ . '/auth.php';
 
@@ -38,12 +36,11 @@ Route::middleware('auth')->group(function () {
         Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
     });
 
-
+  
     Route::resource('users', UserController::class);
     Route::resource('roles', RoleController::class);
     Route::resource('permissions', PermissionController::class);
 
-  
     Route::prefix('nadra')->name('nadra.')->group(function () {
         Route::get('/', [NadraController::class, 'index'])->name('index');
         Route::post('/import', [NadraController::class, 'import'])->name('import');
@@ -58,19 +55,24 @@ Route::middleware('auth')->group(function () {
         Route::post('/check-cnic', [NadraController::class, 'checkDuplicateCnic'])->name('check-cnic');
     });
 
-
-
-    Route::get('/auth/google', [GoogleAuthController::class, 'redirect'])->name('google.auth');
-    Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])->name('google.callback');
-    
-    Route::prefix('calendar')->group(function () {
-        Route::get('/', [GoogleCalendarController::class, 'index'])->name('calendar.index');
-        Route::post('/', [GoogleCalendarController::class, 'store'])->name('calendar.store');
-        Route::put('/{eventId}', [GoogleCalendarController::class, 'update'])->name('calendar.update');
-        Route::delete('/{eventId}', [GoogleCalendarController::class, 'destroy'])->name('calendar.destroy');
+    Route::prefix('auth/google')->name('google.')->group(function () {
+        Route::get('/', [GoogleAuthController::class, 'redirect'])->name('auth');
+        Route::get('/callback', [GoogleAuthController::class, 'callback'])->name('callback');
     });
 
 
+    Route::prefix('calendar')->name('calendar.')->group(function () {
+        Route::get('/check-connection', [GoogleCalendarController::class, 'checkConnection']);
+        Route::get('/view', [GoogleCalendarController::class, 'view'])->name('view');
+        Route::get('/', [GoogleCalendarController::class, 'index'])->name('index');
+        Route::post('/', [GoogleCalendarController::class, 'store'])->name('store');
+        Route::put('/{eventId}', [GoogleCalendarController::class, 'update'])->name('update');
+        Route::delete('/{eventId}', [GoogleCalendarController::class, 'destroy'])->name('destroy');
+    });
+
+
+
+    
 });
 
 
