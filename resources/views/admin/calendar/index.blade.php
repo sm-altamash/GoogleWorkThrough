@@ -526,7 +526,6 @@
         async function createEvent() {
             const form = document.getElementById('eventForm');
             const formData = new FormData(form);
-            
             try {
                 const response = await fetch('{{ route("calendar.store") }}', {
                     method: 'POST',
@@ -535,14 +534,15 @@
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}'
                     }
                 });
-                
-                if (response.ok) {
+
+                const data = await response.json();
+
+                if (data.success) {
                     showNotification('Event created successfully!', 'success');
                     resetForm();
                     loadEvents();
                 } else {
-                    const errorData = await response.json();
-                    showNotification('Failed to create event: ' + (errorData.message || 'Unknown error'), 'danger');
+                    showNotification('Failed to create event: ' + (data.message || 'Unknown error'), 'danger');
                 }
             } catch (error) {
                 console.error('Error creating event:', error);

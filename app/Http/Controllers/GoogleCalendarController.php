@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
+
 
 class GoogleCalendarController extends Controller
 {
@@ -74,42 +76,63 @@ class GoogleCalendarController extends Controller
     }
 
 
-    public function store(Request $request)
+
+    public function store(Request $request): JsonResponse
     {
-        $request->validate([
+        $validated = $request->validate([
             'title' => 'required|string|max:100',
-            'start_time' => 'required|date',
-            'end_time' => 'required|date|after:start_time',
+            'start_time' => 'required|date_format:Y-m-d\TH:i',
+            'end_time' => 'required|date_format:Y-m-d\TH:i|after:start_time',
             'description' => 'nullable|string|max:2000',
             'timezone' => 'required|string|in:UTC,Asia/Karachi,America/New_York,Europe/London,Asia/Dubai,Asia/Tokyo'
         ]);
 
+
+
         try {
             $user = Auth::user();
-            
-            if (!$user->google_access_token) {
-                return back()->with('error', 'Google Calendar not connected');
+            if (!$user || !$user->googleToken || !$user->googleToken->access_token) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Google Calendar not connected or user not authenticated',
+                ], 400);
             }
 
-            // Convert datetime to proper format
-            $startTime = Carbon::parse($request->start_time, $request->timezone)->toISOString();
-            $endTime = Carbon::parse($request->end_time, $request->timezone)->toISOString();
+            // Convert to ISO8601 with timezone
+            $startTime = Carbon::createFromFormat('Y-m-d\TH:i', $validated['start_time'], $validated['timezone'])
+                ->setTimezone('UTC')->toIso8601String();
+            $endTime = Carbon::createFromFormat('Y-m-d\TH:i', $validated['end_time'], $validated['timezone'])
+                ->setTimezone('UTC')->toIso8601String();
 
             $eventData = [
-                'title' => $request->title,
-                'description' => $request->description,
+                'title' => $validated['title'],
+                'description' => $validated['description'] ?? '',
                 'start_time' => $startTime,
                 'end_time' => $endTime,
-                'timezone' => $request->timezone
+                'timezone' => $validated['timezone']
             ];
 
             $event = $this->googleCalendar->createEvent($user, $eventData);
-            
-            return back()->with('success', 'Event created successfully!');
+
+            if (!$event) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to create event in Google Calendar',
+                ], 500);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Event created successfully',
+                'event' => $event,
+            ]);
 
         } catch (\Exception $e) {
-            Log::error('Error creating calendar event: ' . $e->getMessage());
-            return back()->with('error', 'Failed to create event: ' . $e->getMessage());
+            \Log::error('Error creating calendar event: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create event: ' . $e->getMessage(),
+            ], 500);
         }
     }
 
@@ -125,12 +148,11 @@ class GoogleCalendarController extends Controller
 
         try {
             $user = Auth::user();
-            
-            if (!$user->google_access_token) {
+            if (!$user || !$user->googleToken || !$user->googleToken->access_token) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Google Calendar not connected'
-                ], 401);
+                    'message' => 'Google Calendar not connected or user not authenticated',
+                ], 400);
             }
 
             // Convert datetime to proper format
@@ -167,12 +189,11 @@ class GoogleCalendarController extends Controller
     {
         try {
             $user = Auth::user();
-            
-            if (!$user->google_access_token) {
+            if (!$user || !$user->googleToken || !$user->googleToken->access_token) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Google Calendar not connected'
-                ], 401);
+                    'message' => 'Google Calendar not connected or user not authenticated',
+                ], 400);
             }
 
             $this->googleCalendar->deleteEvent($user, $eventId);
@@ -197,12 +218,11 @@ class GoogleCalendarController extends Controller
     {
         try {
             $user = Auth::user();
-            
-            if (!$user->google_access_token) {
+            if (!$user || !$user->googleToken || !$user->googleToken->access_token) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Google Calendar not connected'
-                ], 401);
+                    'message' => 'Google Calendar not connected or user not authenticated',
+                ], 400);
             }
 
             $event = $this->googleCalendar->getEvent($user, $eventId);
