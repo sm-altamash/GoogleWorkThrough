@@ -773,19 +773,6 @@
             };
         }
 
-      
-
-
-
-
-        
-
-
-
-
-
-
-
         async function deleteEvent(eventId) {
             try {
                 const response = await fetch(`{{ route("calendar.destroy", ":id") }}`.replace(':id', eventId), {
@@ -798,24 +785,8 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    showNotification('Event deleted successfully!
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-         showNotification('Event deleted successfully!', 'success');
+                    
+                   showNotification('Event deleted successfully!', 'success');
                     
                     // Close modal
                     const modal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
@@ -828,12 +799,14 @@
                     if (currentEventId === eventId) {
                         resetForm();
                     }
-                } else {
-                    showNotification('Failed to delete event: ' + (data.message || 'Unknown error'), 'danger');
                 }
-            } catch (error) {
-                console.error('Error deleting event:', error);
-                showNotification('Failed to delete event. Please try again.', 'danger');
+                else {
+                        showNotification('Failed to delete event: ' + (data.message || 'Unknown error'), 'danger');
+                }
+            } 
+            catch (error) {
+                    console.error('Error deleting event:', error);
+                    showNotification('Failed to delete event. Please try again.', 'danger');
             }
         }
 
