@@ -109,5 +109,26 @@ class GoogleCalendarService
         
         return $results->getItems();
     }
+    
+
+    public function isConnected(User $user): bool
+    {
+        try {
+            $client = $this->googleClient->getClientForUser($user); 
+
+            if (!$client->isAccessTokenExpired()) {
+                // Try calling a simple endpoint to test connection
+                $service = new Calendar($client);
+                $service->calendarList->listCalendarList();
+                return true;
+            }
+
+            return false;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+
 }
 

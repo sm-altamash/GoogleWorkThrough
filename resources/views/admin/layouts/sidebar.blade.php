@@ -37,7 +37,7 @@
         <span class="menu-header-text" data-i18n="Google Calendar">Google Calendar</span>
     </li>
     <li class="menu-item {{ request()->segment(1) == 'calendar' || request()->segment(1) == 'permissions' ? 'active' : ''}}">
-        <a href="{{route('calendar.index')}}" class="menu-link">
+        <a href="{{route('calendar.view')}}" class="menu-link">
             <i class="menu-icon tf-icons ti ti-calendar"></i>
             <div>Google Calendar</div>
         </a>

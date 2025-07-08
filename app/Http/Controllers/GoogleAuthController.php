@@ -76,7 +76,7 @@ class GoogleAuthController extends Controller
                     'error_description' => $request->get('error_description')
                 ]);
                 
-                return redirect()->route('dashboard')->with('error', 'Google connection failed: ' . $request->get('error_description', $request->get('error')));
+                return redirect()->route('calendar.view')->with('error', 'Google connection failed: ' . $request->get('error_description', $request->get('error')));
             }
             
             $code = $request->get('code');
@@ -88,7 +88,7 @@ class GoogleAuthController extends Controller
                     'full_url' => $request->fullUrl()
                 ]);
                 
-                return redirect()->route('dashboard')->with('error', 'Authorization code not received from Google');
+                return redirect()->route('calendar.view')->with('error', 'Authorization code not received from Google');
             }
 
             Log::info('Attempting to get access token:', [
@@ -99,9 +99,11 @@ class GoogleAuthController extends Controller
             $tokenData = $this->googleClientService->getAccessToken($code);
             $this->googleClientService->storeToken($user, $tokenData);
 
+            session(['google_connected' => true]);
+
             Log::info('Google token stored successfully:', ['user_id' => $user->id]);
 
-            return redirect()->route('dashboard')->with('success', 'Google account connected successfully!');
+            return redirect()->route('calendar.view')->with('success', 'Google account connected successfully!');
             
         } catch (\Exception $e) {
             Log::error('Google callback error:', [
@@ -111,7 +113,24 @@ class GoogleAuthController extends Controller
                 'request_data' => $request->all()
             ]);
             
-            return redirect()->route('dashboard')->with('error', 'Failed to connect Google account: ' . $e->getMessage());
+            return redirect()->route('calendar.view')->with('error', 'Failed to connect Google account: ' . $e->getMessage());
         }
+    }
+
+    public function disconnect(Request $request)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        // Clear Google token from database/session
+        $this->googleClientService->clearToken($user);
+        session(['google_connected' => false]);
+
+        return redirect()->route('calendar.view')->with([
+            'success' => 'Google account disconnected successfully!',
+            'connection_message' => 'Google account disconnected successfully!'
+        ]);
     }
 }

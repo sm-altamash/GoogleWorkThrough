@@ -58,8 +58,8 @@ Route::middleware('auth')->group(function () {
     Route::prefix('auth/google')->name('google.')->group(function () {
         Route::get('/', [GoogleAuthController::class, 'redirect'])->name('auth');
         Route::get('/callback', [GoogleAuthController::class, 'callback'])->name('callback');
+        Route::post('/disconnect', [GoogleAuthController::class, 'disconnect'])->name('disconnect');
     });
-
 
     Route::prefix('calendar')->name('calendar.')->group(function () {
         Route::get('/check-connection', [GoogleCalendarController::class, 'checkConnection']);
