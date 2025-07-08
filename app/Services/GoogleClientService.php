@@ -122,4 +122,12 @@ class GoogleClientService
 
         return $this->storeToken($token->user, $newTokenData);
     }
+
+
+    public function clearToken(User $user): void
+    {
+        if ($user->googleToken) {
+            $user->googleToken->delete();
+        }
+    }
 }

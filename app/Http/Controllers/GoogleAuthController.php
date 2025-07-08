@@ -124,13 +124,26 @@ class GoogleAuthController extends Controller
             return redirect()->route('login');
         }
 
-        // Clear Google token from database/session
-        $this->googleClientService->clearToken($user);
-        session(['google_connected' => false]);
+        // Eager-load the googleToken relationship
+        $user->load('googleToken');
 
-        return redirect()->route('calendar.view')->with([
-            'success' => 'Google account disconnected successfully!',
-            'connection_message' => 'Google account disconnected successfully!'
-        ]);
+        try {
+            // Safely clear token if it exists
+            if ($user->googleToken) {
+                $this->googleClientService->clearToken($user);
+            }
+            session(['google_connected' => false]);
+
+            return redirect()->route('calendar.view')->with([
+                'success' => 'Google account disconnected successfully!',
+                'connection_message' => 'Google account disconnected successfully!'
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Google disconnect error: ' . $e->getMessage());
+            return redirect()->route('calendar.view')->with([
+                'error' => 'Failed to disconnect Google account.',
+                'connection_message' => 'Failed to disconnect Google account.'
+            ]);
+        }
     }
 }
