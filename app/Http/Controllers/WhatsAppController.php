@@ -9,84 +9,103 @@ use Twilio\TwiML\MessagingResponse;
 
 class WhatsAppController extends Controller
 {
+    
     public function __construct()
     {
-        $this->middleware('auth'); // Restrict to authenticated users (except webhook)
+        $this->middleware('auth')->except(['webhook']);
     }
 
-    // Send a WhatsApp message
+    /** ---------------- Send message ---------------- */
     public function sendMessage(Request $request)
     {
         $request->validate([
-            'to' => 'required|string',
+            'to'      => 'required|string',
             'message' => 'required|string',
         ]);
 
-        $twilio = new Client(config('services.twilio.sid'), config('services.twilio.token'));
-
         try {
+            /** ── Twilio outbound ─────────────────── */
+            $twilio = new Client(
+                config('services.twilio.sid'),
+                config('services.twilio.token')
+            );
+
             $twilio->messages->create(
                 'whatsapp:' . $request->to,
                 [
                     'from' => config('services.twilio.whatsapp_number'),
-                    'body' => $request->message
+                    'body' => $request->message,
                 ]
             );
 
-            Message::create([
-                'user_id' => auth()->id(),
-                'from' => str_replace('whatsapp:', '', config('services.twilio.whatsapp_number')),
-                'to' => $request->to,
-                'body' => $request->message,
-                'direction' => 'outbound'
+            /** ── Persist to DB ───────────────────── */
+            $msg = Message::create([
+                'user_id'   => auth()->id(),
+                'from'      => str_replace('whatsapp:', '', config('services.twilio.whatsapp_number')),
+                'to'        => $request->to,
+                'body'      => $request->message,
+                'direction' => 'outbound',
             ]);
 
-            return redirect()->back()->with('success', 'Message sent successfully!');
+            // AJAX? → JSON ; otherwise redirect
+            if ($request->ajax()) {
+                return response()->json($msg, 201);
+            }
+
+            return back()->with('success', 'Message sent!');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', $e->getMessage());
+            if ($request->ajax()) {
+                return response()->json(['message' => $e->getMessage()], 422);
+            }
+            return back()->with('error', $e->getMessage());
         }
     }
 
-    // Handle incoming WhatsApp messages (webhook)
+    /** ---------------- Incoming webhook ---------------- */
     public function webhook(Request $request)
     {
-        $from = $request->input('From');
-        $body = $request->input('Body');
-
-        Message::create([
-            'from' => str_replace('whatsapp:', '', $from),
-            'to' => str_replace('whatsapp:', '', config('services.twilio.whatsapp_number')),
-            'body' => $body,
-            'direction' => 'inbound'
+        $msg = Message::create([
+            'from'      => str_replace('whatsapp:', '', $request->input('From')),
+            'to'        => str_replace('whatsapp:', '', config('services.twilio.whatsapp_number')),
+            'body'      => $request->input('Body'),
+            'direction' => 'inbound',
         ]);
 
-        $response = new MessagingResponse();
-        $response->message('Thanks for your message!');
-        return response($response)->header('Content-Type', 'text/xml');
+        $twiml = new MessagingResponse();
+        $twiml->message('Thanks for your message!');
+
+        return response($twiml)->header('Content-Type', 'text/xml');
     }
 
-    // Show list of conversations
+    /** ---------------- Conversation list ---------------- */
     public function index()
     {
         $conversations = Message::select('from', 'to')
             ->groupBy('from', 'to')
             ->get()
-            ->map(function ($message) {
-                return $message->from === str_replace('whatsapp:', '', config('services.twilio.whatsapp_number'))
-                    ? $message->to
-                    : $message->from;
-            })->unique();
+            ->map(function ($m) {
+                $bot = str_replace('whatsapp:', '', config('services.twilio.whatsapp_number'));
+                return $m->from === $bot ? $m->to : $m->from;
+            })
+            ->unique()
+            ->values();
 
         return view('admin.whatsapp.index', compact('conversations'));
     }
 
-    // Show a specific conversation
-    public function show($number)
+    /** ---------------- Single conversation ---------------- */
+    public function show(Request $request, $number)
     {
-        $messages = Message::where(function ($query) use ($number) {
-            $query->where('from', $number)
-                  ->orWhere('to', $number);
-        })->orderBy('created_at')->get();
+        $messages = Message::where(function ($q) use ($number) {
+                $q->where('from', $number)->orWhere('to', $number);
+            })
+            ->oldest()
+            ->get();
+
+        // AJAX? → JSON ; otherwise HTML
+        if ($request->ajax()) {
+            return response()->json($messages);
+        }
 
         return view('admin.whatsapp.index', compact('messages', 'number'));
     }

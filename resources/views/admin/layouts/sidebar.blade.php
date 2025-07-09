@@ -43,6 +43,17 @@
         </a>
     </li>
 
+        <!-- WhatsApp -->
+    <li class="menu-header small text-uppercase">
+        <span class="menu-header-text" data-i18n="WhatsApp">WhatsApp</span>
+    </li>
+    <li class="menu-item {{ request()->segment(1) == 'whatsapp' || request()->segment(1) == 'permissions' ? 'active' : ''}}">
+        <a href="{{route('whatsapp.index')}}" class="menu-link">
+            <i class="menu-icon tf-icons ti ti-brand-whatsapp"></i>
+            <div>WhatsApp</div>
+        </a>
+    </li>
+
     <!-- User Management -->
     <li class="menu-header small text-uppercase">
         <span class="menu-header-text" data-i18n="User Management">User Management</span>
