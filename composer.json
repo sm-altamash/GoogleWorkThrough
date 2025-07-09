@@ -18,6 +18,7 @@
         "rappasoft/laravel-authentication-log": "^3.0",
         "spatie/laravel-permission": "^6.3",
         "torann/geoip": "^3.0",
+        "twilio/sdk": "^8.6",
         "yajra/laravel-datatables": "^10.0"
     },
     "require-dev": {

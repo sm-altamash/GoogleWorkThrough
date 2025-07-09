@@ -71,10 +71,14 @@ Route::middleware('auth')->group(function () {
     });
 
 
+    Route::get('/whatsapp', [WhatsAppController::class, 'index'])->name('whatsapp.index');
+    Route::get('/whatsapp/{number}', [WhatsAppController::class, 'show'])->name('whatsapp.show');
+    Route::post('/whatsapp/send', [WhatsAppController::class, 'sendMessage'])->name('whatsapp.send');
 
     
 });
 
+Route::post('/whatsapp/webhook', [WhatsAppController::class, 'webhook']);
 
 Route::middleware(['auth', 'verified', '2fa'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
