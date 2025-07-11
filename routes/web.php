@@ -10,6 +10,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\GoogleCalendarController;
 use App\Http\Controllers\WhatsAppController;
+use App\Http\Controllers\YouTubeController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -71,6 +72,23 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{eventId}', [GoogleCalendarController::class, 'destroy'])->name('destroy');
     });
 
+
+    Route::prefix('youtube')->name('youtube.')->group(function () {
+        Route::get('/upload', [YouTubeController::class, 'index'])->name('upload.form');
+        Route::post('/upload', [YouTubeController::class, 'upload'])->name('upload');
+        
+        Route::get('/auth', [YouTubeController::class, 'auth'])->name('auth');
+        Route::get('/videos', [YouTubeController::class, 'videos'])->name('videos');
+        Route::get('/video/{videoId}', [YouTubeController::class, 'show'])->name('video.show');
+        Route::put('/video/{videoId}', [YouTubeController::class, 'update'])->name('video.update');
+        Route::delete('/video/{videoId}', [YouTubeController::class, 'destroy'])->name('video.destroy');
+        Route::get('/dashboard', [YouTubeController::class, 'dashboard'])->name('dashboard');
+        
+        Route::get('/playlists', [YouTubeController::class, 'getPlaylists'])->name('playlists.ajax');
+        Route::post('/playlists/create', [YouTubeController::class, 'createPlaylist'])->name('playlist.create');
+        Route::get('/analytics/{videoId}', [YouTubeController::class, 'analytics'])->name('analytics');
+        Route::post('/bulk-action', [YouTubeController::class, 'bulkAction'])->name('bulk.action');
+    });
 
     Route::get('/whatsapp', [WhatsAppController::class, 'index'])->name('whatsapp.index');
     Route::get('/whatsapp/{number}', [WhatsAppController::class, 'show'])->name('whatsapp.show');

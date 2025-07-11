@@ -43,6 +43,17 @@
         </a>
     </li>
 
+    <!-- YouTube -->
+    <li class="menu-header small text-uppercase">
+        <span class="menu-header-text" data-i18n="YouTube">YouTube</span>
+    </li>
+    <li class="menu-item {{ request()->segment(1) == 'permissions' ? 'active' : '' }}">
+        <a href="{{route('youtube.upload')}}" class="menu-link">
+            <i class="menu-icon tf-icons ti ti-brand-youtube"></i>
+            <div data-i18n="YouTube Upload">YouTube Upload</div>
+        </a>
+    </li>
+
         <!-- WhatsApp -->
     <li class="menu-header small text-uppercase">
         <span class="menu-header-text" data-i18n="WhatsApp">WhatsApp</span>
