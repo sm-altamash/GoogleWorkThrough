@@ -4,6 +4,9 @@ namespace App\Services;
 
 use Google\Service\Calendar;
 use Google\Service\Calendar\Event;
+use Google\Service\Calendar\ConferenceData;
+use Google\Service\Calendar\CreateConferenceRequest;
+use Google\Service\Calendar\ConferenceSolutionKey;
 use App\Models\User;
 use Carbon\Carbon;
 
@@ -25,23 +28,20 @@ class GoogleCalendarService
     public function listEvents(User $user, ?string $calendarId = 'primary', int $maxResults = 10): array
     {
         $service = $this->getCalendarService($user);
-        
         $optParams = [
             'maxResults' => $maxResults,
             'orderBy' => 'startTime',
             'singleEvents' => true,
             'timeMin' => Carbon::now()->toISOString(),
         ];
-
         $results = $service->events->listEvents($calendarId, $optParams);
-        
         return $results->getItems();
     }
 
     public function createEvent(User $user, array $eventData, ?string $calendarId = 'primary'): Event
     {
         $service = $this->getCalendarService($user);
-        
+
         $event = new Event([
             'summary' => $eventData['title'],
             'description' => $eventData['description'] ?? '',
@@ -56,30 +56,37 @@ class GoogleCalendarService
             'attendees' => $eventData['attendees'] ?? [],
         ]);
 
-        return $service->events->insert($calendarId, $event);
+        // Generate Google Meet link if requested
+        if (!empty($eventData['create_meet'])) {
+            $conferenceData = new ConferenceData();
+            $createRequest = new CreateConferenceRequest();
+            $createRequest->setRequestId('req_' . uniqid());
+            $createRequest->setConferenceSolutionKey(new ConferenceSolutionKey([
+                'type' => 'hangoutsMeet'
+            ]));
+            $conferenceData->setCreateRequest($createRequest);
+            $event->setConferenceData($conferenceData);
+        }
+
+        // Insert event with conferenceDataVersion to ensure Meet link generation
+        $options = !empty($eventData['create_meet']) ? ['conferenceDataVersion' => 1] : [];
+        return $service->events->insert($calendarId, $event, $options);
     }
 
     public function updateEvent(User $user, string $eventId, array $eventData, ?string $calendarId = 'primary'): Event
     {
         $service = $this->getCalendarService($user);
-        
         $event = $service->events->get($calendarId, $eventId);
-        
-        if (isset($eventData['title'])) {
-            $event->setSummary($eventData['title']);
-        }
-        
-        if (isset($eventData['description'])) {
-            $event->setDescription($eventData['description']);
-        }
-        
+
+        // Update basic fields
+        if (isset($eventData['title'])) $event->setSummary($eventData['title']);
+        if (isset($eventData['description'])) $event->setDescription($eventData['description']);
         if (isset($eventData['start_time'])) {
             $event->setStart([
                 'dateTime' => $eventData['start_time'],
                 'timeZone' => $eventData['timezone'] ?? 'UTC',
             ]);
         }
-        
         if (isset($eventData['end_time'])) {
             $event->setEnd([
                 'dateTime' => $eventData['end_time'],
@@ -87,7 +94,28 @@ class GoogleCalendarService
             ]);
         }
 
-        return $service->events->update($calendarId, $eventId, $event);
+        // Handle Google Meet link
+        if (isset($eventData['create_meet'])) {
+            $createMeet = $eventData['create_meet'];
+            
+            if ($createMeet && !$event->getConferenceData()) {
+                // Create new Meet link
+                $conferenceData = new ConferenceData();
+                $createRequest = new CreateConferenceRequest();
+                $createRequest->setRequestId('req_' . uniqid());
+                $createRequest->setConferenceSolutionKey(new ConferenceSolutionKey([
+                    'type' => 'hangoutsMeet'
+                ]));
+                $conferenceData->setCreateRequest($createRequest);
+                $event->setConferenceData($conferenceData);
+            } elseif (!$createMeet && $event->getConferenceData()) {
+                // Remove Meet link (optional - Google may not allow this)
+                $event->setConferenceData(null);
+            }
+        }
+
+        $options = !empty($eventData['create_meet']) ? ['conferenceDataVersion' => 1] : [];
+        return $service->events->update($calendarId, $eventId, $event, $options);
     }
 
     public function deleteEvent(User $user, string $eventId, ?string $calendarId = 'primary'): void

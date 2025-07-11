@@ -67,6 +67,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/check-connection', [GoogleCalendarController::class, 'checkConnection']);
         Route::get('/view', [GoogleCalendarController::class, 'view'])->name('view');
         Route::get('/', [GoogleCalendarController::class, 'index'])->name('index');
+        Route::get('/{eventId}', [GoogleCalendarController::class, 'show'])->name('show');
         Route::post('/', [GoogleCalendarController::class, 'store'])->name('store');
         Route::put('/{eventId}', [GoogleCalendarController::class, 'update'])->name('update');
         Route::delete('/{eventId}', [GoogleCalendarController::class, 'destroy'])->name('destroy');

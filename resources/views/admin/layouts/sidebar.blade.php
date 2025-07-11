@@ -32,14 +32,14 @@
         </a>
     </li>
 
-    <!-- Google Calender -->
+    <!-- Google Calender & Google Meet -->
     <li class="menu-header small text-uppercase">
-        <span class="menu-header-text" data-i18n="Google Calendar">Google Calendar</span>
+        <span class="menu-header-text" data-i18n="Meetings">Meetings</span>
     </li>
     <li class="menu-item {{ request()->segment(1) == 'calendar' || request()->segment(1) == 'permissions' ? 'active' : ''}}">
         <a href="{{route('calendar.view')}}" class="menu-link">
             <i class="menu-icon tf-icons ti ti-calendar"></i>
-            <div>Google Calendar</div>
+            <div>Events</div>
         </a>
     </li>
 

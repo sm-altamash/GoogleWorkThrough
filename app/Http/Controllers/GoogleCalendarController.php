@@ -84,10 +84,9 @@ class GoogleCalendarController extends Controller
             'start_time' => 'required|date_format:Y-m-d\TH:i',
             'end_time' => 'required|date_format:Y-m-d\TH:i|after:start_time',
             'description' => 'nullable|string|max:2000',
-            'timezone' => 'required|string|in:UTC,Asia/Karachi,America/New_York,Europe/London,Asia/Dubai,Asia/Tokyo'
+            'timezone' => 'required|string|in:UTC,Asia/Karachi,America/New_York,Europe/London,Asia/Dubai,Asia/Tokyo',
+            'create_meet' => 'boolean', // New field
         ]);
-
-
 
         try {
             $user = Auth::user();
@@ -98,7 +97,7 @@ class GoogleCalendarController extends Controller
                 ], 400);
             }
 
-            // Convert to ISO8601 with timezone
+            // Convert to UTC ISO8601
             $startTime = Carbon::createFromFormat('Y-m-d\TH:i', $validated['start_time'], $validated['timezone'])
                 ->setTimezone('UTC')->toIso8601String();
             $endTime = Carbon::createFromFormat('Y-m-d\TH:i', $validated['end_time'], $validated['timezone'])
@@ -109,26 +108,20 @@ class GoogleCalendarController extends Controller
                 'description' => $validated['description'] ?? '',
                 'start_time' => $startTime,
                 'end_time' => $endTime,
-                'timezone' => $validated['timezone']
+                'timezone' => $validated['timezone'],
+                'create_meet' => $request->boolean('create_meet', false),
             ];
 
             $event = $this->googleCalendar->createEvent($user, $eventData);
-
-            if (!$event) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Failed to create event in Google Calendar',
-                ], 500);
-            }
 
             return response()->json([
                 'success' => true,
                 'message' => 'Event created successfully',
                 'event' => $event,
+                'meet_link' => $event->getHangoutLink() ?? null, // Optional
             ]);
-
         } catch (\Exception $e) {
-            \Log::error('Error creating calendar event: ' . $e->getMessage());
+            Log::error('Error creating calendar event: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create event: ' . $e->getMessage(),
@@ -140,10 +133,12 @@ class GoogleCalendarController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:100',
-            'start_time' => 'required|date',
-            'end_time' => 'required|date|after:start_time',
+            'start_time' => 'required|date_format:Y-m-d\TH:i',
+            'end_time' => 'required|date_format:Y-m-d\TH:i|after:start_time',
             'description' => 'nullable|string|max:2000',
-            'timezone' => 'required|string|in:UTC,Asia/Karachi,America/New_York,Europe/London,Asia/Dubai,Asia/Tokyo'
+            'timezone' => 'required|string|in:UTC,Asia/Karachi,America/New_York,Europe/London,Asia/Dubai,Asia/Tokyo',
+            'create_meet' => 'boolean' // Add this line
+
         ]);
 
         try {
@@ -156,28 +151,29 @@ class GoogleCalendarController extends Controller
             }
 
             // Convert datetime to proper format
-            $startTime = Carbon::parse($request->start_time, $request->timezone)->toISOString();
-            $endTime = Carbon::parse($request->end_time, $request->timezone)->toISOString();
+            $startTime = Carbon::createFromFormat('Y-m-d\TH:i', $request->start_time, $request->timezone)
+                ->setTimezone('UTC')->toIso8601String();
+            $endTime = Carbon::createFromFormat('Y-m-d\TH:i', $request->end_time, $request->timezone)
+                ->setTimezone('UTC')->toIso8601String();
 
             $eventData = [
                 'title' => $request->title,
                 'description' => $request->description,
                 'start_time' => $startTime,
                 'end_time' => $endTime,
-                'timezone' => $request->timezone
+                'timezone' => $request->timezone,
+                'create_meet' => $request->boolean('create_meet', false), // Pass this
             ];
 
             $event = $this->googleCalendar->updateEvent($user, $eventId, $eventData);
-            
             return response()->json([
                 'success' => true,
                 'event' => $event,
+                'meet_link' => $event->getHangoutLink() ?? null,
                 'message' => 'Event updated successfully!'
             ]);
-
         } catch (\Exception $e) {
             Log::error('Error updating calendar event: ' . $e->getMessage());
-            
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update event: ' . $e->getMessage()

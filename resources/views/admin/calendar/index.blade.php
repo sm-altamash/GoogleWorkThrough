@@ -205,6 +205,24 @@
                                 @enderror
                             </div>
 
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input 
+                                        type="checkbox" 
+                                        id="create_meet" 
+                                        name="create_meet" 
+                                        value="1" 
+                                        class="form-check-input @error('create_meet') is-invalid @enderror"
+                                        {{ old('create_meet') ? 'checked' : '' }}>
+                                    <label for="create_meet" class="form-check-label">
+                                        <i class="ti ti-video me-1"></i> Create Google Meet Link
+                                    </label>
+                                    @error('create_meet')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
                             {{-- Submit Button --}}
                             <div class="col-12 d-flex justify-content-between">
                                 <button type="button" class="btn btn-outline-secondary" id="cancelBtn" onclick="resetForm()" style="display: none;">
@@ -301,7 +319,6 @@
                 </div>
             </div>
         </div>
-
     </section>
 
     <style>
@@ -534,11 +551,13 @@
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}'
                     }
                 });
-
                 const data = await response.json();
-
                 if (data.success) {
-                    showNotification('Event created successfully!', 'success');
+                    let message = 'Event created successfully!';
+                    if (data.meet_link) {
+                        message += `<br><a href="${data.meet_link}" target="_blank" class="alert-link">Join Google Meet</a>`;
+                    }
+                    showNotification(message, 'success');
                     resetForm();
                     loadEvents();
                 } else {
@@ -552,10 +571,10 @@
             }
         }
 
+        
         async function updateEvent() {
             const form = document.getElementById('eventForm');
             const formData = new FormData(form);
-            
             try {
                 const response = await fetch(`{{ route("calendar.update", ":id") }}`.replace(':id', currentEventId), {
                     method: 'POST',
@@ -565,11 +584,13 @@
                         'X-HTTP-Method-Override': 'PUT'
                     }
                 });
-                
                 const data = await response.json();
-                
                 if (data.success) {
-                    showNotification('Event updated successfully!', 'success');
+                    let message = 'Event updated successfully!';
+                    if (data.meet_link) {
+                        message += `<br><a href="${data.meet_link}" target="_blank">Join Google Meet</a>`;
+                    }
+                    showNotification(message, 'success');
                     resetForm();
                     loadEvents();
                 } else {
@@ -586,13 +607,10 @@
         function editEvent(eventId) {
             // Scroll to form
             document.getElementById('eventForm').scrollIntoView({ behavior: 'smooth' });
-            
             // Find event data from current events
             const eventContainer = document.querySelector(`[data-event-id="${eventId}"]`);
             if (!eventContainer) return;
-            
             const eventData = JSON.parse(eventContainer.dataset.eventData);
-            
             // Update form
             currentEventId = eventId;
             document.getElementById('form-title').textContent = 'Edit Event';
@@ -601,6 +619,21 @@
             document.getElementById('start_time').value = formatDateTimeForInput(eventData.start?.dateTime || eventData.start?.date);
             document.getElementById('end_time').value = formatDateTimeForInput(eventData.end?.dateTime || eventData.end?.date);
             
+            // Set timezone dropdown
+            const timezoneSelect = document.getElementById('timezone');
+            const eventTimezone = eventData.start?.timeZone || 'UTC';
+            Array.from(timezoneSelect.options).forEach(option => {
+                if (option.value === eventTimezone) {
+                    option.selected = true;
+                }
+            });
+
+            // Set Google Meet checkbox
+            const meetCheckbox = document.getElementById('create_meet');
+            if (meetCheckbox) {
+                meetCheckbox.checked = !!eventData.hangoutLink;
+            }
+
             // Update button text
             document.getElementById('submitBtn').innerHTML = `
                 <span class="submit-text">
@@ -611,11 +644,9 @@
                     Updating...
                 </span>
             `;
-            
             // Show cancel button
             document.getElementById('cancelBtn').style.display = 'inline-block';
-            
-            // Update character counters
+            // Reset character counters
             setupCharacterCounters();
         }
 
@@ -694,7 +725,6 @@
 
         function displayEvents(events) {
             const container = document.getElementById('events-container');
-            
             if (!events || events.length === 0) {
                 container.innerHTML = `
                     <div class="no-events">
@@ -705,14 +735,12 @@
                 `;
                 return;
             }
-            
             const eventsHtml = events.map(event => `
                 <div class="card event-card mb-3" data-event-id="${event.id}" data-event-data='${JSON.stringify(event)}'>
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start">
                             <div class="flex-grow-1">
                                 <h6 class="event-title mb-2">${event.summary || 'Untitled Event'}</h6>
-                                
                                 <div class="event-meta">
                                     <div class="event-meta-item">
                                         <i class="ti ti-clock"></i>
@@ -721,7 +749,6 @@
                                             ${event.end?.dateTime || event.end?.date ? ' - ' + formatDisplayDateTime(event.end?.dateTime || event.end?.date) : ''}
                                         </span>
                                     </div>
-                                    
                                     ${event.location ? `
                                         <div class="event-meta-item">
                                             <i class="ti ti-map-pin"></i>
@@ -729,15 +756,21 @@
                                         </div>
                                     ` : ''}
                                 </div>
-                                
                                 ${event.description ? `
                                     <div class="event-description mt-2">
                                         <i class="ti ti-file-text me-1"></i>
                                         ${event.description}
                                     </div>
                                 ` : ''}
+                                <!-- Google Meet Link -->
+                                ${event.hangoutLink ? `
+                                    <div class="mt-3">
+                                        <a href="${event.hangoutLink}" target="_blank" class="btn btn-sm btn-success">
+                                            <i class="ti ti-video me-1"></i> Join Google Meet
+                                        </a>
+                                    </div>
+                                ` : ''}
                             </div>
-                            
                             <div class="dropdown">
                                 <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
                                     <i class="ti ti-dots-vertical"></i>
@@ -759,7 +792,6 @@
                     </div>
                 </div>
             `).join('');
-            
             container.innerHTML = eventsHtml;
         }
 
