@@ -170,6 +170,9 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
+        // App\Providers\AIAgentServiceProvider::class,
+
+
         Maatwebsite\Excel\ExcelServiceProvider::class,
 
     ])->toArray(),

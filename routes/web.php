@@ -13,6 +13,7 @@ use App\Http\Controllers\WhatsAppController;
 use App\Http\Controllers\YouTubeController;
 use App\Http\Controllers\GoogleGmailcontroller;
 use App\Http\Controllers\GoogleDriveController;
+use App\Http\Controllers\AIAgentController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -115,6 +116,18 @@ Route::middleware('auth')->group(function () {
     Route::get('/whatsapp/{number}', [WhatsAppController::class, 'show'])->name('whatsapp.show');
     Route::post('/whatsapp/send', [WhatsAppController::class, 'sendMessage'])->name('whatsapp.send');
 
+
+    Route::group(['prefix' => 'ai-agent'], function () {
+        Route::get('/', [AIAgentController::class, 'index'])->name('ai-agent.dashboard');
+        Route::get('/health', [AIAgentController::class, 'healthCheck'])->name('ai-agent.health');
+    });
+
+    Route::group(['prefix' => 'api/ai-agent'], function () {
+        Route::post('/summarize/url', [AIAgentController::class, 'summarizeUrl'])->name('ai-agent.summarize.url');
+        Route::post('/question/url', [AIAgentController::class, 'askQuestionUrl'])->name('ai-agent.question.url');
+        Route::post('/summarize/file', [AIAgentController::class, 'summarizeFile'])->name('ai-agent.summarize.file');
+        Route::post('/question/file', [AIAgentController::class, 'askQuestionFile'])->name('ai-agent.question.file');
+    });
     
 });
 

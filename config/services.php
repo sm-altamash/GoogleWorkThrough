@@ -43,4 +43,11 @@ return [
     'token' => env('TWILIO_AUTH_TOKEN'),
     'whatsapp_number' => env('TWILIO_WHATSAPP_NUMBER'),
     ],
+
+    'ai_agent' => [
+    'base_url' => env('AI_AGENT_BASE_URL', 'http://localhost:8000'),
+    'api_key' => env('AI_AGENT_API_KEY'),
+    'timeout' => env('AI_AGENT_TIMEOUT', 30),
+    ],
+    
 ];
