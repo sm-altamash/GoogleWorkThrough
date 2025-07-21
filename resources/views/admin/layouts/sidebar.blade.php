@@ -28,7 +28,7 @@
     <li class="menu-item {{ request()->segment(1) == 'nadra' || request()->segment(1) == 'permissions' ? 'active' : ''}}">
         <a href="{{route('nadra.index')}}" class="menu-link">
             <i class="menu-icon tf-icons ti ti-devices-bolt"></i>
-            <div>Nadra Excel Upload</div>
+            <div data-i18n="Nadra Excel Upload">Nadra Excel Upload</div>
         </a>
     </li>
 
@@ -39,7 +39,30 @@
     <li class="menu-item {{ request()->segment(1) == 'calendar' || request()->segment(1) == 'permissions' ? 'active' : ''}}">
         <a href="{{route('calendar.view')}}" class="menu-link">
             <i class="menu-icon tf-icons ti ti-calendar"></i>
-            <div>Events</div>
+            <div data-i18n="Events">Events</div>
+        </a>
+    </li>
+
+    <!-- Google Gmail -->
+    <li class="menu-header small text-uppercase">
+        <span class="menu-header-text" data-i18n="Gmail">Gmail</span>
+    </li>
+    <li class="menu-item {{ request()->segment(1) == 'gmail' || request()->segment(1) == 'permissions' ? 'active' : ''}}">
+        <a href="{{route('gmail.index')}}" class="menu-link">
+            <i class="menu-icon tf-icons ti ti-mail"></i>
+            <div data-i18n="Emails">Emails</div>
+        </a>
+    </li>
+
+
+    <!-- Storage -->
+    <li class="menu-header small text-uppercase">
+        <span class="menu-header-text" data-i18n="Storage">Storage</span>
+    </li>
+    <li class="menu-item {{ request()->segment(1) == 'permissions' ? 'active' : '' }}">
+        <a href="{{route('drive.index')}}" class="menu-link">
+            <i class="menu-icon tf-icons ti ti-brand-google-drive"></i>
+            <div data-i18n="Google Drive">Google Drive</div>
         </a>
     </li>
 
@@ -61,7 +84,7 @@
     <li class="menu-item {{ request()->segment(1) == 'whatsapp' || request()->segment(1) == 'permissions' ? 'active' : ''}}">
         <a href="{{route('whatsapp.index')}}" class="menu-link">
             <i class="menu-icon tf-icons ti ti-brand-whatsapp"></i>
-            <div>WhatsApp</div>
+            <div data-i18n="WhatsApp">WhatsApp</div>
         </a>
     </li>
 
@@ -72,13 +95,13 @@
     <li class="menu-item {{ request()->segment(1) == 'roles' || request()->segment(1) == 'permissions' ? 'active' : ''}}">
         <a href="{{route('roles.index')}}" class="menu-link">
             <i class="menu-icon tf-icons ti ti-settings"></i>
-            <div>Roles & Permissions</div>
+            <div data-i18n="Roles & Permissions">Roles & Permissions</div>
         </a>
     </li>
     <li class="menu-item {{ request()->segment(1) == 'users' ? 'active' : ''}}">
         <a href="{{route('users.index')}}" class="menu-link">
             <i class="menu-icon tf-icons ti ti-user"></i>
-            <div>Users</div>
+            <div data-i18n="Users">Users</div>
         </a>
     </li>
 </ul>

@@ -15,5 +15,11 @@ return [
         'https://www.googleapis.com/auth/youtube.upload ',
         'https://www.googleapis.com/auth/youtube.readonly ',
         'https://www.googleapis.com/auth/youtubepartner ',
-    ],        
+        'https://www.googleapis.com/auth/drive ',
+        'https://www.googleapis.com/auth/gmail.compose' ,
+        'https://www.googleapis.com/auth/gmail.labels' ,
+        'https://www.googleapis.com/auth/gmail.settings.basic' ,
+        'https://www.googleapis.com/auth/gmail.settings.sharing' ,
+        'https://mail.google.com/',
+    ],
 ];

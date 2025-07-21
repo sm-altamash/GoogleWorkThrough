@@ -11,6 +11,8 @@ use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\GoogleCalendarController;
 use App\Http\Controllers\WhatsAppController;
 use App\Http\Controllers\YouTubeController;
+use App\Http\Controllers\GoogleGmailcontroller;
+use App\Http\Controllers\GoogleDriveController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -91,6 +93,24 @@ Route::middleware('auth')->group(function () {
         Route::post('/bulk-action', [YouTubeController::class, 'bulkAction'])->name('bulk.action');
     });
 
+
+    Route::prefix('gmail')->name('gmail.')->group(function () {
+
+        Route::get('/', [GoogleGmailController::class, 'view'])->name('view');
+
+        Route::get('/messages', [GoogleGmailController::class, 'index'])->name('index');
+        Route::post('/send', [GoogleGmailController::class, 'send'])->name('send');
+        Route::post('/draft', [GoogleGmailController::class, 'createDraft'])->name('draft');
+
+        Route::get('/drafts', [GoogleGmailController::class, 'listDrafts'])->name('drafts');
+        Route::delete('/drafts/{id}', [GoogleGmailController::class, 'deleteDraft'])->name('drafts.delete');
+    });
+
+
+    Route::get('/drive', [GoogleDriveController::class, 'index'])->name('drive.index');
+    Route::post('/drive/upload', [GoogleDriveController::class, 'upload'])->name('drive.upload');
+
+    
     Route::get('/whatsapp', [WhatsAppController::class, 'index'])->name('whatsapp.index');
     Route::get('/whatsapp/{number}', [WhatsAppController::class, 'show'])->name('whatsapp.show');
     Route::post('/whatsapp/send', [WhatsAppController::class, 'sendMessage'])->name('whatsapp.send');
