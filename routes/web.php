@@ -14,6 +14,7 @@ use App\Http\Controllers\YouTubeController;
 use App\Http\Controllers\GoogleGmailcontroller;
 use App\Http\Controllers\GoogleDriveController;
 use App\Http\Controllers\AIAgentController;
+use App\Http\Controllers\Admin\AdminManagementController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -128,8 +129,19 @@ Route::middleware('auth')->group(function () {
         Route::post('/summarize/file', [AIAgentController::class, 'summarizeFile'])->name('ai-agent.summarize.file');
         Route::post('/question/file', [AIAgentController::class, 'askQuestionFile'])->name('ai-agent.question.file');
     });
-    
+
+
+
+    Route::prefix('admin-management')->group(function () {
+        Route::post('/create-email', [AdminManagementController::class, 'createInstitutionalEmail']);
+        Route::post('/create-from-module', [AdminManagementController::class, 'createEmailFromFirstModule']);
+        Route::post('/webhook/create-email', [AdminManagementController::class, 'webhookCreateEmail']);
+        Route::get('/email-status/{userId}', [AdminManagementController::class, 'getEmailStatus']);
+    });
+
 });
+
+
 
 Route::post('/whatsapp/webhook', [WhatsAppController::class, 'webhook']);
 
