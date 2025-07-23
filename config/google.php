@@ -26,6 +26,20 @@ return [
         'https://www.googleapis.com/auth/gmail.settings.basic' ,
         'https://www.googleapis.com/auth/gmail.settings.sharing' ,
         'https://mail.google.com/',
+        'https://www.googleapis.com/auth/classroom.courses',
+        'https://www.googleapis.com/auth/classroom.courses.readonly',
+        'https://www.googleapis.com/auth/classroom.coursework.me',
+        'https://www.googleapis.com/auth/classroom.coursework.me.readonly',
+        'https://www.googleapis.com/auth/classroom.coursework.students',
+        'https://www.googleapis.com/auth/classroom.coursework.students.readonly',
+        'https://www.googleapis.com/auth/classroom.rosters',
+        'https://www.googleapis.com/auth/classroom.rosters.readonly',
+        'https://www.googleapis.com/auth/classroom.profile.emails',
+        'https://www.googleapis.com/auth/classroom.profile.photos',
+        'https://www.googleapis.com/auth/classroom.student-submissions.me.readonly',
+        'https://www.googleapis.com/auth/classroom.student-submissions.students.readonly',
+        'https://www.googleapis.com/auth/classroom.announcements',
+        'https://www.googleapis.com/auth/classroom.announcements.readonly',
     ],
 
 
@@ -41,5 +55,13 @@ return [
         'students' => '/Students',
         'faculty' => '/Faculty',
         'staff' => '/Staff',
+    ],
+
+
+    'classroom' => [
+        'default_page_size' => 50,
+        'max_page_size' => 100,
+        'default_course_state' => 'ACTIVE',
+        'default_coursework_state' => 'PUBLISHED',
     ],
 ];

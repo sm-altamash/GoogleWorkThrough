@@ -55,7 +55,15 @@
             <!-- Google Calendar & Meet -->
             <li class="menu-item {{ request()->segment(1) == 'calendar' ? 'active' : ''}}">
                 <a href="{{route('calendar.view')}}" class="menu-link">
-                    <div data-i18n="Calendar & Events">Calendar & Events</div>
+                    <div data-i18n="Calendar & Events">Meetings & Events</div>
+                </a>
+            </li>
+
+            <!-- Google Classroom -->
+            <li class="menu-item {{ request()->segment(1) == 'classroom' ? 'active' : ''}}">
+                <a href="{{ route('classroom.dashboard') }}" class="menu-link">
+                    {{-- <i class="menu-icon tf-icons ti ti-chalkboard"></i> --}}
+                    <div data-i18n="Classroom">Google Classroom</div>
                 </a>
             </li>
             

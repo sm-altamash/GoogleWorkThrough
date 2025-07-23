@@ -15,7 +15,13 @@ use App\Http\Controllers\GoogleGmailcontroller;
 use App\Http\Controllers\GoogleDriveController;
 use App\Http\Controllers\AIAgentController;
 use App\Http\Controllers\Admin\AdminManagementController;
+use App\Http\Controllers\GoogleClassroomController;
 use Illuminate\Support\Facades\Route;
+
+
+Route::get('/test', function () {
+    return view('admin.classroom.test');
+});
 
 
 Route::get('/', function () {
@@ -139,6 +145,75 @@ Route::middleware('auth')->group(function () {
         Route::get('/email-status/{userId}', [AdminManagementController::class, 'getEmailStatus']);
     });
 
+
+
+    Route::prefix('classroom')->name('classroom.')->group(function () {
+        // C O U R S E S
+        Route::get('/courses', [GoogleClassroomController::class, 'index'])
+            ->name('courses.index');
+        Route::get('/courses/create', [GoogleClassroomController::class, 'create'])
+            ->name('courses.create');
+        Route::post('/courses', [GoogleClassroomController::class, 'store'])
+            ->name('courses.store');
+        Route::get('/courses/{courseId}', [GoogleClassroomController::class, 'show'])
+            ->name('courses.show');
+        Route::get('/courses/{courseId}/edit', [GoogleClassroomController::class, 'edit'])
+            ->name('courses.edit');
+        Route::put('/courses/{courseId}', [GoogleClassroomController::class, 'update'])
+            ->name('courses.update');
+        Route::delete('/courses/{courseId}', [GoogleClassroomController::class, 'destroy'])
+            ->name('courses.destroy');
+
+        // C O U R S E W O R K
+        Route::get('/courses/{courseId}/coursework', [GoogleClassroomController::class, 'coursework'])
+            ->name('coursework.index');
+        Route::get('/courses/{courseId}/coursework/create', [GoogleClassroomController::class, 'createCoursework'])
+            ->name('coursework.create');
+        Route::post('/courses/{courseId}/coursework', [GoogleClassroomController::class, 'storeCoursework'])
+            ->name('coursework.store');
+        Route::get('/courses/{courseId}/coursework/{courseWorkId}/edit', [GoogleClassroomController::class, 'editCoursework'])
+            ->name('coursework.edit');
+        Route::put('/courses/{courseId}/coursework/{courseWorkId}', [GoogleClassroomController::class, 'updateCoursework'])
+            ->name('coursework.update');
+        Route::delete('/courses/{courseId}/coursework/{courseWorkId}', [GoogleClassroomController::class, 'destroyCoursework'])
+            ->name('coursework.destroy');
+
+        // S T U D E N T S
+        Route::get('/courses/{courseId}/students', [GoogleClassroomController::class, 'students'])
+            ->name('students.index');
+        Route::post('/courses/{courseId}/students', [GoogleClassroomController::class, 'addStudent'])
+            ->name('students.store');
+        Route::delete('/courses/{courseId}/students/{studentId}', [GoogleClassroomController::class, 'removeStudent'])
+            ->name('students.destroy');
+
+        // T E A C H E R S
+        Route::get('/courses/{courseId}/teachers', [GoogleClassroomController::class, 'teachers'])
+            ->name('teachers.index');
+
+        // S U B M I S S I O N S
+        Route::get('/courses/{courseId}/coursework/{courseWorkId}/submissions', [GoogleClassroomController::class, 'submissions'])
+            ->name('submissions.index');
+        Route::post('/courses/{courseId}/coursework/{courseWorkId}/submissions/{submissionId}/grade', [GoogleClassroomController::class, 'gradeSubmission'])
+            ->name('submissions.grade');
+        Route::post('/courses/{courseId}/coursework/{courseWorkId}/return', [GoogleClassroomController::class, 'returnSubmissions'])
+            ->name('submissions.return');
+
+        // I N V I T A T I O N S
+        Route::get('/courses/{courseId}/invitations/create', [GoogleClassroomController::class, 'createInvitationForm'])
+            ->name('invitations.create');
+        Route::post('/courses/{courseId}/invitations', [GoogleClassroomController::class, 'storeInvitation'])
+            ->name('invitations.store');
+        Route::get('/invitations', [GoogleClassroomController::class, 'invitations'])
+            ->name('invitations.index');
+
+        // U T I L I T I E S
+        Route::get('/connection-status', [GoogleClassroomController::class, 'connectionStatus'])
+            ->name('connection.status');
+        Route::get('/profile', [GoogleClassroomController::class, 'profile'])
+            ->name('profile');
+        Route::get('/dashboard', [GoogleClassroomController::class, 'dashboard'])
+            ->name('dashboard');
+    });
 });
 
 
