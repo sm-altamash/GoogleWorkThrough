@@ -16,11 +16,11 @@ class AdminManagementController extends Controller
 {
     private $googleAdminService;
 
+
     /**
-     * Why we inject dependencies:
+     * - inject dependencies
      * - Better testability
      * - Loose coupling
-     * - Easy to mock in tests
      * - Laravel's service container handles instantiation
      */
     public function __construct(GoogleAdminService $googleAdminService)
@@ -28,24 +28,21 @@ class AdminManagementController extends Controller
         $this->googleAdminService = $googleAdminService;
     }
 
+
     /**
      * Create institutional email account
-     * 
-     * Algorithm 1: Direct Creation
-     * Flow: Receive data -> Validate -> Create Google account -> Store in DB
-     * 
-     * @param CreateEmailRequest $request
-     * @return JsonResponse
+     * method 1: Direct creation via API
+     * Receive data -> Validate -> Create Google account -> Store in DB
      */
     public function createInstitutionalEmail(CreateEmailRequest $request): JsonResponse
     {
         try {
             DB::beginTransaction();
             
-            // Step 1: Extract and prepare data
+            // Extract and prepare data
             $userData = $this->prepareUserData($request);
             
-            // Step 2: Check if email already exists in Google
+            // Check if email already exists in Google
             if ($this->googleAdminService->userExists($userData['email'])) {
                 return response()->json([
                     'success' => false,
@@ -53,14 +50,14 @@ class AdminManagementController extends Controller
                 ], 409);
             }
             
-            // Step 3: Create Google Workspace account
+            // Create Google Workspace account
             $googleResult = $this->googleAdminService->createUser($userData);
             
             if (!$googleResult['success']) {
                 throw new Exception($googleResult['error']);
             }
             
-            // Step 4: Store in local database
+            // Store in local database
             $institutionalEmail = $this->storeEmailRecord($request, $userData, $googleResult);
             
             DB::commit();
@@ -100,12 +97,19 @@ class AdminManagementController extends Controller
         }
     }
 
+
+
+
+
+
+
+
+
+
+
     /**
      * Algorithm 2: Batch Creation from First Module
      * Flow: Fetch from first module -> Validate -> Batch create
-     * 
-     * @param Request $request
-     * @return JsonResponse
      */
     public function createEmailFromFirstModule(Request $request): JsonResponse
     {
@@ -121,7 +125,7 @@ class AdminManagementController extends Controller
             
             foreach ($request->user_ids as $userId) {
                 try {
-                    // Method 1: Fetch from first module API
+                    // Fetch from first module API
                     $userInfo = $this->fetchUserFromFirstModule($userId);
                     
                     if (!$userInfo) {
@@ -174,6 +178,11 @@ class AdminManagementController extends Controller
         }
     }
 
+
+
+
+
+
     /**
      * Method 3: Webhook endpoint for automatic creation
      * When first module creates a user, it can call this webhook
@@ -223,11 +232,11 @@ class AdminManagementController extends Controller
         }
     }
 
+
+
+
     /**
      * Get institutional email status
-     * 
-     * @param int $userId
-     * @return JsonResponse
      */
     public function getEmailStatus($userId): JsonResponse
     {
@@ -273,6 +282,13 @@ class AdminManagementController extends Controller
             ], 500);
         }
     }
+
+
+
+
+
+
+
 
     // ===========================================
     // PRIVATE HELPER METHODS
@@ -322,7 +338,7 @@ class AdminManagementController extends Controller
      */
     private function fetchUserFromFirstModule($userId)
     {
-        // Method 1: HTTP Client to first module API
+        // HTTP Client to first module API
         try {
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . config('app.first_module_api_key'),
@@ -334,7 +350,7 @@ class AdminManagementController extends Controller
             }
             
         } catch (Exception $e) {
-            Log::error('Failed to fetch from first module API', [
+            Log::error('Failed to fetch from Existing API', [
                 'user_id' => $userId,
                 'error' => $e->getMessage()
             ]);

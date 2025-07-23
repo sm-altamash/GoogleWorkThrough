@@ -15,29 +15,23 @@ class GoogleAdminService
     private $service;
     private $domain;
 
-    /**
-     * Why we create a service class:
-     * - Separation of concerns
-     * - Reusable Google API logic
-     * - Easier testing and maintenance
-     * - Centralized configuration
-     */
+
     public function __construct()
     {
         $this->domain = config('google.domain', 'leads.edu.pk');
         $this->initializeClient();
     }
 
+
     /**
      * Initialize Google Client
-     * Multiple authentication methods supported
      */
     private function initializeClient()
     {
         try {
             $this->client = new Client();
             
-            // Method 1: Service Account Authentication (Recommended for server-to-server)
+            // Service Account Authentication (server-to-server)
             if (config('google.service_account_path')) {
                 $this->client->setAuthConfig(config('google.service_account_path'));
                 $this->client->addScope(Directory::ADMIN_DIRECTORY_USER);
@@ -49,12 +43,6 @@ class GoogleAdminService
                 }
             }
             
-            // Method 2: OAuth2 Credentials (Alternative method)
-            elseif (config('google.credentials_path')) {
-                $this->client->setAuthConfig(config('google.credentials_path'));
-                $this->client->addScope(Directory::ADMIN_DIRECTORY_USER);
-            }
-            
             $this->service = new Directory($this->client);
             
         } catch (Exception $e) {
@@ -63,11 +51,9 @@ class GoogleAdminService
         }
     }
 
+
     /**
      * Create a new Google Workspace user
-     * 
-     * @param array $userData
-     * @return array
      */
     public function createUser($userData)
     {
@@ -108,6 +94,7 @@ class GoogleAdminService
         }
     }
 
+
     /**
      * Build Google User object from our data
      */
@@ -137,6 +124,7 @@ class GoogleAdminService
         return $googleUser;
     }
 
+
     /**
      * Validate user data before creating
      */
@@ -162,6 +150,7 @@ class GoogleAdminService
         }
     }
 
+
     /**
      * Generate secure temporary password
      */
@@ -170,6 +159,7 @@ class GoogleAdminService
         $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
         return substr(str_shuffle($chars), 0, $length);
     }
+
 
     /**
      * Check if user exists in Google Workspace
@@ -184,6 +174,7 @@ class GoogleAdminService
         }
     }
 
+    
     /**
      * Get user information from Google
      */
