@@ -6,6 +6,7 @@ use Google\Client;
 use App\Models\GoogleToken;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class GoogleClientService
 {
@@ -62,6 +63,50 @@ class GoogleClientService
         );
     }
 
+    /**
+     * Check if user has a valid Google token
+     */
+    public function hasValidToken(User $user): bool
+    {
+        try {
+            $token = $user->googleToken;
+            
+            // Check if user has a Google token record
+            if (!$token) {
+                return false;
+            }
+            
+            // Check if token is expired
+            if ($token->isExpired() || $token->isExpiringSoon()) {
+                // Try to refresh token if refresh token exists
+                if ($token->refresh_token) {
+                    try {
+                        $this->refreshToken($token);
+                        return true;
+                    } catch (\Exception $e) {
+                        Log::warning('Failed to refresh Google token:', [
+                            'user_id' => $user->id,
+                            'error' => $e->getMessage()
+                        ]);
+                        return false;
+                    }
+                }
+                return false;
+            }
+            
+            return true;
+        } catch (\Exception $e) {
+            Log::error('Error checking Google token validity:', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage()
+            ]);
+            return false;
+        }
+    }
+
+    /**
+     * Refresh the Google access token using GoogleToken model
+     */
     protected function refreshToken(GoogleToken $token): GoogleToken
     {
         if (!$token->refresh_token) {
@@ -69,8 +114,20 @@ class GoogleClientService
         }
 
         $this->client->refreshToken($token->refresh_token);
-        $newToken = $this->client->getAccessToken();
+        $newTokenData = $this->client->getAccessToken();
 
-        return $this->storeToken($token->user, $newToken);
+        if (!$newTokenData) {
+            throw new \Exception('Failed to refresh token');
+        }
+
+        return $this->storeToken($token->user, $newTokenData);
+    }
+
+
+    public function clearToken(User $user): void
+    {
+        if ($user->googleToken) {
+            $user->googleToken->delete();
+        }
     }
 }

@@ -1,6 +1,6 @@
 <div class="app-brand demo">
     <a href="index.html" class="app-brand-link">
-        <span class="app-brand-text demo menu-text fw-bold">Nadra Records</span>
+        <span class="app-brand-text demo menu-text fw-bold">Administration</span>
     </a>
 
     <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto">
@@ -20,25 +20,84 @@
         </a>
     </li>
 
+    <!-- AI Agent -->
+    <li class="menu-header small text-uppercase">
+        <span class="menu-header-text" data-i18n="AI Assistant">AI Assistant</span>
+    </li>
+    <li class="menu-item {{ request()->segment(1) == 'ai-agent' ? 'active' : ''}}">
+        <a href="{{route('ai-agent.dashboard')}}" class="menu-link">
+            <i class="menu-icon tf-icons ti ti-robot"></i>
+            <div data-i18n="AI Agent">AI Agent</div>
+        </a>
+    </li>
+
     <!-- Nadra Import -->
     <li class="menu-header small text-uppercase">
         <span class="menu-header-text" data-i18n="Nadra Imports">Nadra Imports</span>
     </li>
-    <li class="menu-item {{ request()->segment(1) == 'nadra' || request()->segment(1) == 'permissions' ? 'active' : ''}}">
+    <li class="menu-item {{ request()->segment(1) == 'nadra' ? 'active' : ''}}">
         <a href="{{route('nadra.index')}}" class="menu-link">
             <i class="menu-icon tf-icons ti ti-devices-bolt"></i>
-            <div>Nadra Excel Upload</div>
+            <div data-i18n="Nadra Excel Upload">Nadra Excel Upload</div>
         </a>
     </li>
 
-    <!-- Google Calender -->
+    <!-- Google Services -->
     <li class="menu-header small text-uppercase">
-        <span class="menu-header-text" data-i18n="Nadra Imports">Nadra Imports</span>
+        <span class="menu-header-text" data-i18n="Google Services">Google Services</span>
     </li>
-    <li class="menu-item {{ request()->segment(1) == 'calendar' || request()->segment(1) == 'permissions' ? 'active' : ''}}">
-        <a href="{{route('calendar.index')}}" class="menu-link">
-            <i class="menu-icon tf-icons ti ti-calendar"></i>
-            <div>Google Calendar</div>
+    <li class="menu-item {{ in_array(request()->segment(1), ['calendar', 'gmail', 'drive', 'youtube']) ? 'active open' : '' }}">
+        <a href="javascript:void(0);" class="menu-link menu-toggle">
+            <i class="menu-icon tf-icons ti ti-brand-google"></i>
+            <div data-i18n="Google Services">Google Services</div>
+        </a>
+        <ul class="menu-sub">
+            <!-- Google Calendar & Meet -->
+            <li class="menu-item {{ request()->segment(1) == 'calendar' ? 'active' : ''}}">
+                <a href="{{route('calendar.view')}}" class="menu-link">
+                    <div data-i18n="Calendar & Events">Meetings & Events</div>
+                </a>
+            </li>
+
+            <!-- Google Classroom -->
+            <li class="menu-item {{ request()->segment(1) == 'classroom' ? 'active' : ''}}">
+                <a href="{{ route('classroom.dashboard') }}" class="menu-link">
+                    {{-- <i class="menu-icon tf-icons ti ti-chalkboard"></i> --}}
+                    <div data-i18n="Classroom">Google Classroom</div>
+                </a>
+            </li>
+            
+            <!-- Gmail -->
+            <li class="menu-item {{ request()->segment(1) == 'gmail' ? 'active' : ''}}">
+                <a href="{{route('gmail.index')}}" class="menu-link">
+                    <div data-i18n="Gmail">Gmail</div>
+                </a>
+            </li>
+            
+            <!-- Google Drive -->
+            <li class="menu-item {{ request()->segment(1) == 'drive' ? 'active' : ''}}">
+                <a href="{{route('drive.index')}}" class="menu-link">
+                    <div data-i18n="Google Drive">Google Drive</div>
+                </a>
+            </li>
+            
+            <!-- YouTube -->
+            <li class="menu-item {{ request()->segment(1) == 'youtube' ? 'active' : ''}}">
+                <a href="{{route('youtube.upload')}}" class="menu-link">
+                    <div data-i18n="YouTube">YouTube</div>
+                </a>
+            </li>
+        </ul>
+    </li>
+
+    <!-- WhatsApp -->
+    <li class="menu-header small text-uppercase">
+        <span class="menu-header-text" data-i18n="WhatsApp">WhatsApp</span>
+    </li>
+    <li class="menu-item {{ request()->segment(1) == 'whatsapp' ? 'active' : ''}}">
+        <a href="{{route('whatsapp.index')}}" class="menu-link">
+            <i class="menu-icon tf-icons ti ti-brand-whatsapp"></i>
+            <div data-i18n="WhatsApp">WhatsApp</div>
         </a>
     </li>
 
@@ -49,13 +108,13 @@
     <li class="menu-item {{ request()->segment(1) == 'roles' || request()->segment(1) == 'permissions' ? 'active' : ''}}">
         <a href="{{route('roles.index')}}" class="menu-link">
             <i class="menu-icon tf-icons ti ti-settings"></i>
-            <div>Roles & Permissions</div>
+            <div data-i18n="Roles & Permissions">Roles & Permissions</div>
         </a>
     </li>
     <li class="menu-item {{ request()->segment(1) == 'users' ? 'active' : ''}}">
         <a href="{{route('users.index')}}" class="menu-link">
             <i class="menu-icon tf-icons ti ti-user"></i>
-            <div>Users</div>
+            <div data-i18n="Users">Users</div>
         </a>
     </li>
 </ul>
