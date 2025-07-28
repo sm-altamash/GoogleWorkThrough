@@ -23,9 +23,7 @@ class GoogleAdminService
     }
 
 
-    /**
-     * Initialize Google Client
-     */
+    //  Initialize Google Client
     private function initializeClient()
     {
         try {
@@ -52,9 +50,8 @@ class GoogleAdminService
     }
 
 
-    /**
-     * Create a new Google Workspace user
-     */
+    
+    //   Create a new Google Workspace user
     public function createUser($userData)
     {
         try {
@@ -95,9 +92,8 @@ class GoogleAdminService
     }
 
 
-    /**
-     * Build Google User object from our data
-     */
+    
+     //  Build Google User object from our data
     private function buildGoogleUser($userData)
     {
         $googleUser = new GoogleUser();
@@ -125,9 +121,8 @@ class GoogleAdminService
     }
 
 
-    /**
-     * Validate user data before creating
-     */
+    
+    //   Validate user data before creating
     private function validateUserData($userData)
     {
         $required = ['email', 'first_name', 'last_name', 'password'];
@@ -151,9 +146,8 @@ class GoogleAdminService
     }
 
 
-    /**
-     * Generate secure temporary password
-     */
+
+    //   Generate secure temporary password  
     public function generateTemporaryPassword($length = 12)
     {
         $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
@@ -161,9 +155,8 @@ class GoogleAdminService
     }
 
 
-    /**
-     * Check if user exists in Google Workspace
-     */
+    
+    //   Check if user exists in Google Workspace
     public function userExists($email)
     {
         try {
@@ -175,9 +168,8 @@ class GoogleAdminService
     }
 
     
-    /**
-     * Get user information from Google
-     */
+    
+    //   Get user information from Google
     public function getUser($email)
     {
         try {

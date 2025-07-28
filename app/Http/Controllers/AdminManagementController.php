@@ -16,24 +16,15 @@ class AdminManagementController extends Controller
 {
     private $googleAdminService;
 
-
-    /**
-     * - inject dependencies
-     * - Better testability
-     * - Loose coupling
-     * - Laravel's service container handles instantiation
-     */
     public function __construct(GoogleAdminService $googleAdminService)
     {
         $this->googleAdminService = $googleAdminService;
     }
 
 
-    /**
-     * Create institutional email account
-     * method 1: Direct creation via API
-     * Receive data -> Validate -> Create Google account -> Store in DB
-     */
+    
+    //   Direct creation via API
+    //   Receive data -> Validate -> Create Google account -> Store in DB 
     public function createInstitutionalEmail(CreateEmailRequest $request): JsonResponse
     {
         try {
@@ -98,19 +89,8 @@ class AdminManagementController extends Controller
     }
 
 
-
-
-
-
-
-
-
-
-
-    /**
-     * Algorithm 2: Batch Creation from First Module
-     * Flow: Fetch from first module -> Validate -> Batch create
-     */
+        //  Batch Creation from First Module
+        //  Fetch from first module -> Validate -> Batch create
     public function createEmailFromFirstModule(Request $request): JsonResponse
     {
         $request->validate([
@@ -179,17 +159,8 @@ class AdminManagementController extends Controller
     }
 
 
-
-
-
-
-    /**
-     * Method 3: Webhook endpoint for automatic creation
-     * When first module creates a user, it can call this webhook
-     * 
-     * @param Request $request
-     * @return JsonResponse
-     */
+        //   Webhook endpoint for automatic creation
+        //   When existed system creates a user, it can call this webhook
     public function webhookCreateEmail(Request $request): JsonResponse
     {
         // Validate webhook signature (security measure)
@@ -287,16 +258,13 @@ class AdminManagementController extends Controller
 
 
 
-
-
-
     // ===========================================
     // PRIVATE HELPER METHODS
     // ===========================================
 
-    /**
-     * Prepare user data for Google account creation
-     */
+    
+
+    //   Prepare user data for Google account creation
     private function prepareUserData($request): array
     {
         // Convert username to email
@@ -307,14 +275,13 @@ class AdminManagementController extends Controller
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
             'password' => $this->googleAdminService->generateTemporaryPassword(),
-            'org_unit' => $request->org_unit ?? '/Students', // Default organizational unit
+            'org_unit' => $request->org_unit ?? '/Students', // Default Lahore Leads University unit
             'department' => $request->department
         ];
     }
 
-    /**
-     * Store email record in local database
-     */
+   
+    //   Store email record in local database
     private function storeEmailRecord($request, $userData, $googleResult): InstitutionalEmail
     {
         return InstitutionalEmail::create([
@@ -333,9 +300,8 @@ class AdminManagementController extends Controller
         ]);
     }
 
-    /**
-     * Fetch user information from first module
-     */
+
+    //   Fetch user information from existed system's API
     private function fetchUserFromFirstModule($userId)
     {
         // HTTP Client to first module API
@@ -358,9 +324,8 @@ class AdminManagementController extends Controller
         
     }
 
-    /**
-     * Create email from user info fetched from first module
-     */
+
+    //   Create email from user info fetched from existing system
     private function createEmailFromUserInfo($userInfo): array
     {
         try {
@@ -427,9 +392,8 @@ class AdminManagementController extends Controller
         }
     }
 
-    /**
-     * Validate webhook signature for security
-     */
+
+    //   Validate webhook signature for security
     private function validateWebhookSignature($request): bool
     {
         $signature = $request->header('X-Webhook-Signature');
@@ -445,9 +409,8 @@ class AdminManagementController extends Controller
         return hash_equals($computedSignature, $signature);
     }
 
-    /**
-     * Prepare user data from webhook request
-     */
+    
+    //  Prepare user data from webhook request
     private function prepareUserDataFromWebhook($request): array
     {
         $email = $request->username . '@' . config('google.domain');
@@ -461,9 +424,8 @@ class AdminManagementController extends Controller
         ];
     }
 
-    /**
-     * Store email record from webhook
-     */
+
+    //  Store email record from webhook
     private function storeEmailRecordFromWebhook($request, $userData, $googleResult): InstitutionalEmail
     {
         return InstitutionalEmail::create([

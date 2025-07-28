@@ -40,6 +40,9 @@ return [
         'https://www.googleapis.com/auth/classroom.student-submissions.students.readonly',
         'https://www.googleapis.com/auth/classroom.announcements',
         'https://www.googleapis.com/auth/classroom.announcements.readonly',
+        'https://www.googleapis.com/auth/forms.body',
+        'https://www.googleapis.com/auth/forms.responses.readonly',
+        'https://www.googleapis.com/auth/drive.readonly', // for accessing forms in Drive
     ],
 
 

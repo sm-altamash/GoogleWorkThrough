@@ -66,6 +66,14 @@
                     <div data-i18n="Classroom">Google Classroom</div>
                 </a>
             </li>
+
+            <!-- Google Forms -->
+            <li class="menu-item {{ request()->segment(1) == 'forms' ? 'active' : ''}}">
+                <a href="{{ route('forms.index') }}" class="menu-link">
+                    {{-- <i class="menu-icon tf-icons ti ti-forms"></i> --}}
+                    <div data-i18n="Forms">Forms</div>
+                </a>
+            </li>
             
             <!-- Gmail -->
             <li class="menu-item {{ request()->segment(1) == 'gmail' ? 'active' : ''}}">
