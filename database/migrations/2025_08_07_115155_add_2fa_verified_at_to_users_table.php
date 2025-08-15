@@ -9,14 +9,15 @@ return new class extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('google2fa_secret')->nullable();
+            // add a nullable timestamp column for 2FA verification
+            $table->timestamp('2fa_verified_at')->nullable();
         });
     }
 
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('google2fa_secret');
+            $table->dropColumn('2fa_verified_at');
         });
     }
 };

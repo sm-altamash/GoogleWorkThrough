@@ -22,7 +22,6 @@ use App\Http\Controllers\{
 };
 
 // Test and Redirect
-Route::get('/test', fn() => view('admin.classroom.test'));
 Route::get('/', fn() => redirect('/login'));
 
 // Auth routes
@@ -30,6 +29,9 @@ require __DIR__ . '/auth.php';
 
 // WhatsApp webhook (open route)
 Route::post('/whatsapp/webhook', [WhatsAppController::class, 'webhook']);
+
+// Dashboard (with extra middleware)
+Route::middleware(['auth', 'verified', '2fa'])->get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 // Protected Routes
 Route::middleware('auth')->group(function () {
@@ -88,18 +90,19 @@ Route::middleware('auth')->group(function () {
 
     // YouTube
     Route::prefix('youtube')->name('youtube.')->group(function () {
+        Route::get('/auth', [YouTubeController::class, 'auth'])->name('auth');
+        Route::post('/disconnect', [YouTubeController::class, 'disconnect'])->name('disconnect');
         Route::get('/upload', [YouTubeController::class, 'index'])->name('upload.form');
         Route::post('/upload', [YouTubeController::class, 'upload'])->name('upload');
-        Route::get('/auth', [YouTubeController::class, 'auth'])->name('auth');
-        Route::get('/videos', [YouTubeController::class, 'videos'])->name('videos');
-        Route::get('/video/{videoId}', [YouTubeController::class, 'show'])->name('video.show');
-        Route::put('/video/{videoId}', [YouTubeController::class, 'update'])->name('video.update');
-        Route::delete('/video/{videoId}', [YouTubeController::class, 'destroy'])->name('video.destroy');
         Route::get('/dashboard', [YouTubeController::class, 'dashboard'])->name('dashboard');
-        Route::get('/playlists', [YouTubeController::class, 'getPlaylists'])->name('playlists.ajax');
-        Route::post('/playlists/create', [YouTubeController::class, 'createPlaylist'])->name('playlist.create');
-        Route::get('/analytics/{videoId}', [YouTubeController::class, 'analytics'])->name('analytics');
-        Route::post('/bulk-action', [YouTubeController::class, 'bulkAction'])->name('bulk.action');
+        Route::get('/videos', [YouTubeController::class, 'videos'])->name('videos');
+        Route::get('/videos/{videoId}', [YouTubeController::class, 'show'])->name('videos.show');
+        Route::put('/videos/{videoId}', [YouTubeController::class, 'update'])->name('videos.update');
+        Route::delete('/videos/{videoId}', [YouTubeController::class, 'destroy'])->name('videos.destroy');
+        Route::get('/videos/{videoId}/analytics', [YouTubeController::class, 'analytics'])->name('videos.analytics');
+        Route::get('/playlists', [YouTubeController::class, 'getPlaylists'])->name('playlists');
+        Route::post('/playlists', [YouTubeController::class, 'createPlaylist'])->name('playlists.create');        
+        Route::post('/videos/bulk-action', [YouTubeController::class, 'bulkAction'])->name('videos.bulk');
     });
 
     // Gmail
@@ -208,6 +211,3 @@ Route::middleware('auth')->group(function () {
     Route::get('/google/forms/status', [GoogleFormsController::class, 'connectionStatus'])->name('google.forms.status');
 
 });
-
-// Dashboard (with extra middleware)
-Route::middleware(['auth', 'verified', '2fa'])->get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

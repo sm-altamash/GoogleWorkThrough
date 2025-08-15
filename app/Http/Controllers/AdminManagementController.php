@@ -105,14 +105,14 @@ class AdminManagementController extends Controller
             
             foreach ($request->user_ids as $userId) {
                 try {
-                    // Fetch from first module API
+                    // Fetch from  LAMS's  API
                     $userInfo = $this->fetchUserFromFirstModule($userId);
                     
                     if (!$userInfo) {
                         $results[] = [
                             'user_id' => $userId,
                             'success' => false,
-                            'message' => 'User not found in first module'
+                            'message' => 'User not found in LAMS'
                         ];
                         $failCount++;
                         continue;
@@ -217,7 +217,7 @@ class AdminManagementController extends Controller
             if (!$email) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'No institutional email found'
+                    'message' => 'No email found fot this user at leads.edu.pk'
                 ], 404);
             }
             
@@ -267,16 +267,16 @@ class AdminManagementController extends Controller
     //   Prepare user data for Google account creation
     private function prepareUserData($request): array
     {
-        // Convert username to email
-        $email = $request->username . '@' . config('google.domain', 'leads.edu.pk');
+        // take username from LAMS as email
+         $email = $request->username;
         
         return [
             'email' => $email,
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
+            'department' => $request->department,
             'password' => $this->googleAdminService->generateTemporaryPassword(),
-            'org_unit' => $request->org_unit ?? '/Students', // Default Lahore Leads University unit
-            'department' => $request->department
+            'org_unit' => $request->org_unit ?? '/Students' // Default unit for Lahore Leads University is set to Students
         ];
     }
 
@@ -301,10 +301,10 @@ class AdminManagementController extends Controller
     }
 
 
-    //   Fetch user information from existed system's API
+    //   Fetch user information from  LAMS's  API
     private function fetchUserFromFirstModule($userId)
     {
-        // HTTP Client to first module API
+        // HTTP Client to  LAMS's  API
         try {
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . config('app.first_module_api_key'),
@@ -316,7 +316,7 @@ class AdminManagementController extends Controller
             }
             
         } catch (Exception $e) {
-            Log::error('Failed to fetch from Existing API', [
+            Log::error('Failed to fetch from LAMS API', [
                 'user_id' => $userId,
                 'error' => $e->getMessage()
             ]);
@@ -325,7 +325,7 @@ class AdminManagementController extends Controller
     }
 
 
-    //   Create email from user info fetched from existing system
+    //   Create email from user info fetched from LAMS system (api) 
     private function createEmailFromUserInfo($userInfo): array
     {
         try {
