@@ -3,6 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\WorkspaveApiController;
+use App\Http\Controllers\Api\BackupController;
+
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
@@ -20,6 +22,18 @@ Route::prefix('google-workspace')->group(function () {
         Route::patch('/{email}', [WorkspaveApiController::class, 'updateUser'])->name('google-workspace.users.patch')->where('email', '.*');
         Route::delete('/{email}', [WorkspaveApiController::class, 'deleteUser'])->name('google-workspace.users.delete')->where('email', '.*');
     });
+});
+
+
+
+Route::prefix('backup')->group(function () {
+    // Create and upload backup
+    // POST /api/backup/create
+    Route::post('/create', [BackupController::class, 'createAndUpload']);
+    
+    // Get backup history
+    // GET /api/backup/history?user_id=1
+    Route::get('/history', [BackupController::class, 'history']);
 });
 
 
