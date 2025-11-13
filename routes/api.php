@@ -25,19 +25,10 @@ Route::prefix('google-workspace')->group(function () {
 });
 
 
-
-Route::prefix('backup')->group(function () {
-    // Create and upload backup
-    // POST /api/backup/create
+Route::prefix('backup')->middleware('api.key')->group(function () {
     Route::post('/create', [BackupController::class, 'createAndUpload']);
-    
-    // Get backup history
-    // GET /api/backup/history?user_id=1
     Route::get('/history', [BackupController::class, 'history']);
 });
-
-
-
 
 
 
