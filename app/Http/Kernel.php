@@ -54,6 +54,9 @@ class Kernel extends HttpKernel
 
     protected $routeMiddleware = [
         '2fa' => \App\Http\Middleware\TwoFactorMiddleware::class,
+        'api.key' => \App\Http\Middleware\ApiKeyMiddleware::class,
+
     ];
+
         
 }
