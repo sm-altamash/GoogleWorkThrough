@@ -1,4 +1,4 @@
-# 🚀 GoogleWorkThrough
+# 🚀 WorkspaceBridge 
 
 > A powerful **Laravel-based Google Workspace Integration Platform** that connects Google Calendar, Drive, Classroom, Forms, Gmail, YouTube, and more — all in one unified admin panel.
 
@@ -29,7 +29,7 @@
 
 ## 🎯 About the Project
 
-**GoogleWorkThrough** is a comprehensive **Laravel admin panel** built for institutions (like universities) that need deep integration with Google Workspace. It was built for **Lahore Leads University (leads.edu.pk)** but is designed to be reusable for any organization.
+**WorkspaceBridge** is a comprehensive **Laravel admin panel** built for institutions (like universities) that need deep integration with Google Workspace. It was built for **Lahore Leads University (leads.edu.pk)** but is designed to be reusable for any organization.
 
 The system follows clean architecture principles — every Google service has its own dedicated **Controller** + **Service** layer, making it easy to understand, extend, and maintain.
 
@@ -736,7 +736,7 @@ This project is open-sourced software licensed under the [MIT license](LICENSE).
 
 **SM Altamash**  
 GitHub: [@sm-altamash](https://github.com/sm-altamash)  
-Repository: [GoogleWorkThrough](https://github.com/sm-altamash/GoogleWorkThrough)
+Repository: [WorkspaceBridge](https://github.com/sm-altamash/WorkspaceBridge)
 
 ---
 
