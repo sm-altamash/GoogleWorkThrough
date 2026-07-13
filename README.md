@@ -1,145 +1,262 @@
-# 🚀 WorkspaceBridge 
+*Connect once. Automate everything. — A unified Laravel admin panel that brings Google Calendar, Drive, Classroom, Forms, Gmail, and YouTube under one institutional control plane.*
 
-> A powerful **Laravel-based Google Workspace Integration Platform** that connects Google Calendar, Drive, Classroom, Forms, Gmail, YouTube, and more — all in one unified admin panel.
+[![Laravel](https://img.shields.io/badge/Laravel-11.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
+[![PHP](https://img.shields.io/badge/PHP-8.2%2B-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://php.net)
+[![Google APIs](https://img.shields.io/badge/Google%20APIs-Workspace-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://developers.google.com)
+[![Twilio](https://img.shields.io/badge/Twilio-WhatsApp-F22F46?style=for-the-badge&logo=twilio&logoColor=white)](https://twilio.com)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
-[![Laravel](https://img.shields.io/badge/Laravel-11.x-red?logo=laravel)](https://laravel.com)
-[![PHP](https://img.shields.io/badge/PHP-8.2+-blue?logo=php)](https://php.net)
-[![Google APIs](https://img.shields.io/badge/Google%20APIs-Workspace-green?logo=google)](https://developers.google.com)
-[![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
+[![GitHub last commit](https://img.shields.io/github/last-commit/sm-altamash/WorkspaceBridge?color=6366F1)](https://github.com/sm-altamash/WorkspaceBridge) [![GitHub repo size](https://img.shields.io/github/repo-size/sm-altamash/WorkspaceBridge?color=8B5CF6)](https://github.com/sm-altamash/WorkspaceBridge) [![GitHub stars](https://img.shields.io/github/stars/sm-altamash/WorkspaceBridge?color=facc15)](https://github.com/sm-altamash/WorkspaceBridge) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)](https://github.com/sm-altamash/WorkspaceBridge)
 
----
+**[Features](#features)** · **[Architecture](#architecture)** · **[Installation](#installation)** · **[Contact Me](#support)**
 
-## 📋 Table of Contents
+## 📑 Table of Contents
 
-- [About the Project](#about-the-project)
+- [Project Description](#project-description)
+- [Screenshots](#screenshots)
 - [Features](#features)
-- [Architecture Overview](#architecture-overview)
+- [Architecture](#architecture)
 - [Tech Stack](#tech-stack)
-- [Prerequisites](#prerequisites)
+- [Database Design](#database-design)
+- [Project Structure](#project-structure)
 - [Installation](#installation)
 - [Google API Setup](#google-api-setup)
 - [Configuration](#configuration)
-- [Modules](#modules)
-- [API Endpoints](#api-endpoints)
-- [Database Structure](#database-structure)
-- [Security](#security)
+- [API Reference](#api-reference)
+- [Roadmap](#roadmap)
+- [Why This Project Exists](#why-this-project-exists)
+- [Future Improvements](#future-improvements)
 - [Contributing](#contributing)
+- [Support](#support)
+- [Buy Me a Coffee](#buy-me-a-coffee)
+- [License](#license)
 
----
+## Project Description
 
-## 🎯 About the Project
+**WorkspaceBridge** is a full-stack Laravel admin panel — think a mission control tower for an entire Google Workspace domain — built to show how a real institution automates the busywork of running Calendar, Classroom, Drive, Gmail, and YouTube from one place instead of ten browser tabs.
 
-**WorkspaceBridge** is a comprehensive **Laravel admin panel** built for institutions (like universities) that need deep integration with Google Workspace. It was built for **Lahore Leads University (leads.edu.pk)** but is designed to be reusable for any organization.
+It's a complete integration platform: administrators create institutional email accounts at scale, run Google Classroom courses and grade submissions, schedule calendar events with auto-generated Meet links, send Gmail with attachments, and publish YouTube videos with thumbnails and playlists — all wrapped in a role-gated admin UI backed by a Laravel 11 application built around a strict **Controller → Service** separation, per-user encrypted OAuth tokens, and HMAC-signed webhooks instead of loose, ad-hoc integrations.
 
-The system follows clean architecture principles — every Google service has its own dedicated **Controller** + **Service** layer, making it easy to understand, extend, and maintain.
+> **Built for:** institutions (originally Lahore Leads University) that need deep, auditable Google Workspace automation — and for anyone evaluating this repo who wants to see how I structure a multi-service integration codebase in Laravel.
 
-### Why This Project Exists
+## Screenshots
 
-Managing Google Workspace manually is time-consuming. This platform allows administrators to:
-- Create institutional email accounts at scale
-- Manage Google Classroom courses and assignments
-- Send emails, upload videos, manage calendar events
-- Summarize website content or documents using AI
-- Import and manage NADRA (identity) records with Excel
-- Back up the database automatically to Google Drive
+> Add screenshots of the admin dashboard, Calendar view, Classroom module, and YouTube upload flow here, e.g.:
+> `docs/screenshots/dashboard.png` · `docs/screenshots/calendar.png` · `docs/screenshots/classroom.png`
 
----
+## Features
 
-## ✨ Features
+**🔐 Authentication & Security**
+- Laravel Breeze login/register with **Two-Factor Authentication** (TOTP)
+- **Role-Based Access Control** via Spatie Permissions
+- Per-user **Google OAuth 2.0** connect/disconnect
+- **HMAC-SHA256** webhook signature validation
 
-### 🔐 Authentication & Security
-- **Laravel Breeze** authentication (login/register)
-- **Two-Factor Authentication (2FA)** — TOTP-based
-- **Role-Based Access Control (RBAC)** using Spatie Permissions
-- **Google OAuth 2.0** — connect/disconnect Google accounts per user
-- **Webhook signature validation** (HMAC-SHA256) for secure integrations
+**📅 Google Calendar**
+- Create, update, delete, and view events with auto-refreshing tokens
+- One-click **Google Meet** link generation
+- Multi-timezone support (Karachi, UTC, New York, London, Dubai, Tokyo)
 
-### 📅 Google Calendar
-- View, create, update, and delete calendar events
-- **Google Meet link** auto-generation for events
-- Timezone support (UTC, Asia/Karachi, New York, London, Dubai, Tokyo)
-- Token auto-refresh on expiry
+**📁 Google Drive**
+- Browse and upload files straight from the admin panel
+- **Chunked upload** (1MB chunks) for large backup files
+- Auto-created, dedicated backup folders
 
-### 📁 Google Drive
-- List all files in Google Drive
-- Upload files directly from the admin panel
-- **Chunked upload** support for large backup files (1MB chunks)
-- Auto-create dedicated backup folders in Drive
+**🎓 Google Classroom**
+- Full course CRUD plus coursework, assignments, and due dates
+- Enroll or remove students and teachers, send invitations
+- Review and **grade student submissions** from a dashboard
 
-### 🎓 Google Classroom
-- Full **CRUD** for courses (create, read, update, archive)
-- Manage **coursework** (assignments, quizzes) with due dates
-- Enroll/remove **students** and **teachers**
-- View and grade **student submissions**
-- Send **course invitations** via email
-- Dashboard with recent coursework overview
+**📝 Google Forms & 📧 Gmail**
+- Build forms with text and multiple-choice questions, then pull responses
+- Send HTML email with multiple attachments, or save as drafts
+- Full MIME message construction with base64 encoding
 
-### 📝 Google Forms
-- Create Google Forms with title and description
-- Add **text questions** and **multiple-choice questions**
-- Fetch and display form **responses**
-- Update form info (title, description)
+**🎬 YouTube**
+- Upload videos with custom thumbnails, tags, and privacy settings
+- Manage **playlists** and bulk actions (delete, re-privacy, add-to-playlist)
+- Pull channel stats and per-video analytics
 
-### 📧 Gmail
-- List inbox emails with subject, sender, date
-- **Send emails** with HTML body and multiple attachments
-- **Create drafts** with attachments
-- Full MIME email construction with base64 encoding
+**🤖 AI Agent**
+- Summarize any website, YouTube video, or uploaded file (PDF/TXT/XLSX)
+- Ask free-form questions about a URL or document's contents
 
-### 🎬 YouTube
-- Upload videos with title, description, tags, privacy settings
-- Upload **custom thumbnails** (min 640×360px)
-- **Create and manage playlists**
-- Add videos to playlists automatically after upload
-- View video **analytics** (views, likes, comments)
-- **Bulk actions** — delete, change privacy, add to playlist
-- Get full channel info and statistics
+**🏛️ Institutional Emails & 📊 NADRA Records**
+- Batch-create `@domain` Workspace accounts from an external student system
+- Webhook-driven auto-creation with status sync
+- Import identity records from Excel/CSV with CNIC validation and duplicate detection
 
-### 🤖 AI Agent
-- **Summarize any website URL** using AI
-- **Summarize YouTube videos** by URL
-- **Summarize uploaded files** (PDF, TXT, XLSX, XLS)
-- Ask **questions** about any URL or uploaded file
-- API health check endpoint
-- Supports file sizes up to 10MB
+**💬 WhatsApp & 🗄️ Backups**
+- Two-way WhatsApp messaging via Twilio, with conversation history
+- Three backup strategies (`mysqldump`, pure PHP, gzip-compressed), auto-uploaded to Drive
 
-### 🏛️ Google Admin / Workspace (Institutional Emails)
-- Create Google Workspace accounts for users (`@leads.edu.pk`)
-- **Batch email creation** from LAMS (student management system)
-- **Webhook endpoint** for auto-creation when users are added elsewhere
-- Check email status and sync with Google
-- Impersonate admin user via service account
+## Architecture
 
-### 📊 NADRA Records Management
-- Import records from **Excel/CSV files** (XLSX, XLS, CSV)
-- **DataTables** integration for fast server-side searching/sorting
-- CNIC format validation (`12345-1234567-1`)
-- Duplicate CNIC detection within same file upload
-- CRUD operations with validation
-- File upload history with record counts
-
-### 💬 WhatsApp Integration
-- Send WhatsApp messages via **Twilio API**
-- Receive incoming messages via **webhook**
-- View full conversation history by phone number
-- Auto-reply on incoming messages
-
-### 🗄️ Database Backup
-- **Method 1:** `mysqldump` — fast, production-grade
-- **Method 2:** Laravel DB Facade — works without shell access (shared hosting)
-- **Method 3:** Compressed backup using `gzip`
-- Upload backups directly to **Google Drive**
-- Auto-clean old backups (configurable retention days)
-
----
-
-## 🏗️ Architecture Overview
+WorkspaceBridge follows a strict **Controller → Service** convention: every Google product gets its own controller for HTTP concerns and its own service class for the actual API calls, so business logic never leaks into a route file and every service is independently reusable and testable.
 
 ```
-GoogleWorkThrough/
+flowchart TB
+    Browser["🖥️ Admin Browser"]
+
+    subgraph Laravel["Laravel 11 Application"]
+        direction TB
+        Router["Router"]
+        MW["Middleware<br/>auth · 2FA · RBAC · CSRF"]
+        Ctrl["Controllers<br/>(Calendar, Classroom, Drive, Gmail, YouTube...)"]
+        FR["Form Requests<br/>(validation)"]
+        Svc["Services<br/>(GoogleClientService + per-product services)"]
+        Models["Eloquent Models"]
+    end
+
+    subgraph External["External APIs"]
+        direction TB
+        Google["Google Workspace APIs"]
+        Twilio["Twilio WhatsApp"]
+        AI["AI Agent API"]
+    end
+
+    subgraph Data["Persistence"]
+        direction TB
+        DB[("MySQL")]
+        Drive[("Google Drive<br/>(backups)")]
+    end
+
+    Browser -->|HTTP request| Router --> MW --> Ctrl
+    Ctrl --> FR
+    Ctrl --> Svc
+    Svc --> Google
+    Svc --> Twilio
+    Svc --> AI
+    Svc --> Models --> DB
+    Svc -->|encrypted tokens| DB
+    Svc -->|backup upload| Drive
+    Ctrl -->|JSON / redirect| Browser
+```
+
+    Loading
+
+### Key Components
+
+| Component | Responsibility |
+|-----------|-----------------|
+| `GoogleClientService` | Core OAuth token issuance, refresh, and storage |
+| `GoogleCalendarService` | Event CRUD + Google Meet link generation |
+| `GoogleClassroomService` | Courses, coursework, rosters, grading |
+| `GoogleDriveService` | File listing, upload, chunked backup upload |
+| `GoogleGmailService` | MIME message construction, send, drafts |
+| `YouTubeService` | Chunked video upload, thumbnails, playlists, analytics |
+| `GoogleAdminService` | Institutional email creation via Admin SDK |
+| `AIAgentService` | Summarization and Q&A over URLs/files |
+| `DatabaseBackupService` | Three backup strategies + Drive upload |
+
+### Security Considerations
+
+- **Per-user encrypted Google tokens**, refreshed automatically on expiry
+- **HMAC-SHA256** signature verification on every incoming webhook, compared with `hash_equals` (timing-safe)
+- **RBAC** via Spatie — every route gated by role/permission, not just auth
+- **Strict file upload validation** — MIME type and size checked before anything touches storage or the Google API
+- **SQL injection protection** via Eloquent's parameterized queries
+- **Exponential backoff retries** (1s → 2s → 4s) on Google API `429`/`5xx`/timeout errors
+
+## Tech Stack
+
+| Layer | Technology | Why This Choice |
+|-------|-----------|-------------------|
+| **Backend** | Laravel 11, PHP 8.2+ | Mature ecosystem, expressive ORM, first-class validation and queueing for long-running API calls |
+| **Authentication** | Laravel Breeze + TOTP 2FA | Minimal scaffold plus a real second factor, since this panel touches institutional data |
+| **Authorization** | Spatie Laravel-Permission | Battle-tested RBAC without hand-rolling role/permission tables |
+| **Google Integration** | `google/apiclient` | Official SDK — handles OAuth, refresh, and typed service objects for every Workspace API |
+| **Messaging** | Twilio SDK | Reliable WhatsApp delivery and webhook receipt without managing the Business API directly |
+| **Excel Import** | Maatwebsite/Laravel-Excel | Streaming import for large NADRA record files without memory blowups |
+| **Data Tables** | Yajra DataTables | Server-side searching/sorting for large record sets without shipping the whole table to the browser |
+| **Database** | MySQL 8.0+ | Relational integrity for tokens, records, and audit-style data |
+| **Frontend** | Bootstrap 5 | Fast, consistent admin UI without building a component system from scratch |
+
+## Database Design
+
+```
+erDiagram
+    USERS ||--o{ GOOGLE_TOKENS : authorizes
+    USERS ||--o{ INSTITUTIONAL_EMAILS : owns
+    FILE_UPLOADS ||--o{ NADRA_RECORDS : contains
+    USERS ||--o{ MESSAGES : "sends/receives"
+
+    USERS {
+        bigint id PK
+        string name
+        string email UK
+        timestamp email_verified_at
+        string password
+        timestamp created_at
+    }
+
+    GOOGLE_TOKENS {
+        bigint id PK
+        bigint user_id FK
+        text access_token
+        text refresh_token
+        timestamp expires_at
+    }
+
+    INSTITUTIONAL_EMAILS {
+        bigint id PK
+        bigint user_id FK
+        string username
+        string email
+        string first_name
+        string last_name
+        string department
+        string google_user_id
+        string status
+        json google_response
+        timestamp email_created_at
+        timestamp last_synced_at
+    }
+
+    NADRA_RECORDS {
+        bigint id PK
+        string full_name
+        string father_name
+        string gender
+        date date_of_birth
+        string cnic_number UK
+        string family_id
+        string province
+        string district
+        bigint file_upload_id FK
+    }
+
+    FILE_UPLOADS {
+        bigint id PK
+        string original_filename
+        string stored_filename
+        string category
+        int total_records
+        timestamp uploaded_at
+    }
+
+    MESSAGES {
+        bigint id PK
+        bigint user_id FK
+        string from_number
+        string to_number
+        text body
+        string direction
+        timestamp created_at
+    }
+```
+
+    Loading
+
+**A note on the schema** — `google_tokens` is intentionally one-to-one-per-user rather than embedded on the `users` table, so a token refresh or revocation never touches the user record itself, and future providers (beyond Google) can hang off the same pattern without a migration on `users`.
+
+## Project Structure
+
+```
+WorkspaceBridge/
 ├── app/
 │   ├── Http/
-│   │   ├── Controllers/          # One controller per feature
+│   │   ├── Controllers/          # One controller per Google product
 │   │   │   ├── GoogleAuthController.php
 │   │   │   ├── GoogleCalendarController.php
 │   │   │   ├── GoogleClassroomController.php
@@ -150,605 +267,194 @@ GoogleWorkThrough/
 │   │   │   ├── WhatsAppController.php
 │   │   │   ├── AIAgentController.php
 │   │   │   ├── NadraController.php
-│   │   │   ├── RoleController.php
-│   │   │   ├── PermissionController.php
 │   │   │   └── UserController.php
-│   │   └── Requests/             # Form Request validation classes
-│   ├── Services/                 # Business logic layer
-│   │   ├── GoogleClientService.php    # Core OAuth token management
+│   │   └── Requests/              # Form Request validation classes
+│   ├── Services/                  # Business logic + Google API calls
+│   │   ├── GoogleClientService.php
 │   │   ├── GoogleCalendarService.php
 │   │   ├── GoogleClassroomService.php
 │   │   ├── GoogleDriveService.php
-│   │   ├── GoogleFormsService.php
 │   │   ├── GoogleGmailService.php
 │   │   ├── GoogleAdminService.php
-│   │   ├── WorkspaveApiService.php
 │   │   ├── YouTubeService.php
 │   │   ├── AIAgentService.php
 │   │   └── DatabaseBackupService.php
-│   ├── Models/                   # Eloquent Models
-│   └── Imports/                  # Maatwebsite Excel Imports
+│   ├── Models/
+│   └── Imports/                   # Maatwebsite Excel imports
+│
 ├── routes/
-│   └── web.php                   # All routes organized by feature
-└── resources/views/admin/        # Blade views per module
+│   └── web.php
+│
+├── resources/views/admin/         # Blade views per module
+│
+└── config/
+    └── google.php
 ```
 
-### Design Pattern: Controller → Service
+## Installation
 
-Every module follows the same clean pattern:
+### Prerequisites
 
-```
-HTTP Request
-    ↓
-Controller (validates input, handles HTTP)
-    ↓
-Service (business logic, Google API calls)
-    ↓
-Response (JSON or redirect)
-```
-
-This means controllers are thin and services are reusable — you can call `GoogleCalendarService` from anywhere in the app.
-
----
-
-## 🛠️ Tech Stack
-
-| Layer | Technology |
-|-------|-----------|
-| Framework | Laravel 11.x |
-| PHP | 8.2+ |
-| Database | MySQL 8.0+ |
-| Authentication | Laravel Breeze + 2FA |
-| Authorization | Spatie Laravel-Permission |
-| Google APIs | `google/apiclient` |
-| WhatsApp | Twilio SDK |
-| Excel Import | Maatwebsite/Laravel-Excel |
-| DataTables | Yajra DataTables |
-| HTTP Client | Laravel Http Facade (Guzzle) |
-| Date/Time | Carbon |
-| Frontend | Bootstrap 5, HTML, CSS, JS |
-
----
-
-## 📦 Prerequisites
-
-Before installing, make sure you have:
-
-- PHP >= 8.2 with extensions: `ext-json`, `ext-gd`, `ext-zip`, `ext-curl`
-- Composer
+- PHP 8.2+ with `ext-json`, `ext-gd`, `ext-zip`, `ext-curl`
+- Composer, Node.js & npm
 - MySQL 8.0+
-- Node.js & NPM
-- A **Google Cloud Project** with APIs enabled (see [Google API Setup](#google-api-setup))
-- A **Twilio Account** (for WhatsApp, optional)
-- `mysqldump` accessible from command line (for backup feature)
+- A Google Cloud Project (see [Google API Setup](#google-api-setup))
+- A Twilio account (optional, for WhatsApp)
+- `mysqldump` on PATH (optional, for the fast backup method)
 
----
+### Setup
 
-## 🚀 Installation
-
-### Step 1: Clone the Repository
-
-```bash
-git clone https://github.com/sm-altamash/GoogleWorkThrough.git
-cd GoogleWorkThrough
 ```
+# 1. Clone the repository
+git clone https://github.com/sm-altamash/WorkspaceBridge.git
+cd WorkspaceBridge
 
-### Step 2: Install PHP Dependencies
-
-```bash
+# 2. Install PHP dependencies
 composer install
-```
 
-### Step 3: Install Node Dependencies
-
-```bash
+# 3. Install JS dependencies
 npm install && npm run build
-```
 
-### Step 4: Environment Setup
-
-```bash
+# 4. Configure environment
 cp .env.example .env
 php artisan key:generate
-```
 
-### Step 5: Configure Database
-
-Open `.env` and set your database credentials:
-
-```env
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=google_workthrough
-DB_USERNAME=root
-DB_PASSWORD=your_password
-```
-
-### Step 6: Run Migrations
-
-```bash
+# 5. Set your database credentials in .env, then run migrations
 php artisan migrate
-```
 
-### Step 7: Seed Initial Roles (Optional)
-
-```bash
+# 6. (Optional) seed initial roles
 php artisan db:seed
-```
 
-### Step 8: Start Development Server
-
-```bash
+# 7. Serve the application
 php artisan serve
 ```
 
-Visit `http://localhost:8000` in your browser.
+Visit `http://localhost:8000` — you're in.
 
----
-
-## 🔑 Google API Setup
-
-This is the most important configuration step. Follow carefully.
-
-### Step 1: Create a Google Cloud Project
-
-1. Go to [Google Cloud Console](https://console.cloud.google.com)
-2. Click **New Project** → give it a name → **Create**
-3. Select your new project
-
-### Step 2: Enable Required APIs
-
-Navigate to **APIs & Services → Library** and enable:
-
-| API | Required For |
-|-----|-------------|
-| Google Calendar API | Calendar events |
-| Google Drive API | Drive file management |
-| Google Classroom API | Classroom management |
-| Google Forms API | Forms creation |
-| Gmail API | Email sending |
-| YouTube Data API v3 | Video upload |
-| Admin SDK Directory API | Institutional emails |
-
-### Step 3: Create OAuth 2.0 Credentials
-
-1. Go to **APIs & Services → Credentials**
-2. Click **Create Credentials → OAuth 2.0 Client IDs**
-3. Application type: **Web Application**
-4. Add Authorized Redirect URI:
-   ```
-   http://localhost:8000/auth/google/callback
-   ```
-   (use your production URL in production)
-5. Download the JSON file — save it as `google-credentials.json`
-
-### Step 4: Create Service Account (for Admin SDK)
-
-1. Go to **APIs & Services → Credentials**
-2. Click **Create Credentials → Service Account**
-3. Give it a name, click **Done**
-4. Click on the service account → **Keys** tab → **Add Key → JSON**
-5. Save the file as `google-service-account.json`
-6. **Enable Domain-Wide Delegation** on the service account
-7. In Google Admin Console, authorize the service account with required scopes
-
-### Step 5: Configure OAuth Scopes
-
-In Google Cloud Console → **OAuth consent screen**, add scopes:
+### Production Deployment
 
 ```
-https://www.googleapis.com/auth/calendar
-https://www.googleapis.com/auth/drive
-https://www.googleapis.com/auth/classroom.courses
-https://www.googleapis.com/auth/classroom.coursework.students
-https://www.googleapis.com/auth/classroom.rosters
-https://www.googleapis.com/auth/forms.body
-https://www.googleapis.com/auth/gmail.send
-https://www.googleapis.com/auth/youtube
-https://www.googleapis.com/auth/admin.directory.user
+composer install --optimize-autoloader --no-dev
+npm run build
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+php artisan migrate --force
 ```
 
----
+## Google API Setup
 
-## ⚙️ Configuration
+1. Create a project in the [Google Cloud Console](https://console.cloud.google.com)
+2. Enable: **Calendar API, Drive API, Classroom API, Forms API, Gmail API, YouTube Data API v3, Admin SDK Directory API**
+3. Create an **OAuth 2.0 Client ID** (Web Application) with redirect URI `http://localhost:8000/auth/google/callback`
+4. Create a **Service Account** for Admin SDK, enable **Domain-Wide Delegation**, and authorize it in the Google Admin Console
+5. Add the required scopes on the OAuth consent screen (Calendar, Drive, Classroom, Forms, Gmail send, YouTube, Admin directory)
 
-### `.env` File — All Settings
+## Configuration
+
+Key `.env` values:
 
 ```env
-# App
-APP_NAME="GoogleWorkThrough"
-APP_URL=http://localhost:8000
-
-# Database
-DB_CONNECTION=mysql
-DB_DATABASE=google_workthrough
-DB_USERNAME=root
-DB_PASSWORD=
-
-# Google OAuth (from OAuth 2.0 credentials JSON)
 GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=your-client-secret
 GOOGLE_REDIRECT_URI=http://localhost:8000/auth/google/callback
-GOOGLE_APPLICATION_NAME="GoogleWorkThrough"
-GOOGLE_DOMAIN=leads.edu.pk
-GOOGLE_ADMIN_EMAIL=admin@leads.edu.pk
-
-# Google Service Account (path to JSON key file)
+GOOGLE_DOMAIN=yourdomain.edu
+GOOGLE_ADMIN_EMAIL=admin@yourdomain.edu
 GOOGLE_SERVICE_ACCOUNT_PATH=/path/to/google-service-account.json
 
-# Twilio (WhatsApp)
 TWILIO_SID=your-twilio-sid
 TWILIO_TOKEN=your-twilio-auth-token
 TWILIO_WHATSAPP_NUMBER=+14155238886
 
-# AI Agent API (your external AI service)
 AI_AGENT_BASE_URL=http://your-ai-api.com
 AI_AGENT_API_KEY=your-api-key
-AI_AGENT_TIMEOUT=30
 
-# Webhook Security
 WEBHOOK_SECRET=your-random-secret-key
 ```
 
-### `config/google.php`
+## API Reference
 
-Create this file for Google-specific settings:
+**AI Agent**
 
-```php
-return [
-    'client_id'            => env('GOOGLE_CLIENT_ID'),
-    'client_secret'        => env('GOOGLE_CLIENT_SECRET'),
-    'redirect_uri'         => env('GOOGLE_REDIRECT_URI'),
-    'application_name'     => env('GOOGLE_APPLICATION_NAME', 'GoogleWorkThrough'),
-    'domain'               => env('GOOGLE_DOMAIN', 'leads.edu.pk'),
-    'admin_email'          => env('GOOGLE_ADMIN_EMAIL'),
-    'service_account_path' => env('GOOGLE_SERVICE_ACCOUNT_PATH'),
-    'default_org_unit'     => '/Students',
-    'force_password_change' => true,
-    'default_password_length' => 12,
-    'retry_attempts'       => 3,
-    'scopes' => [
-        \Google\Service\Calendar::CALENDAR,
-        \Google\Service\Drive::DRIVE,
-        \Google\Service\Gmail::GMAIL_SEND,
-        \Google\Service\YouTube::YOUTUBE,
-        \Google\Service\Classroom::CLASSROOM_COURSES,
-        \Google\Service\Forms::FORMS_BODY,
-    ],
-];
-```
+| Method | Route | Description |
+|--------|-------|--------------|
+| POST | `/api/ai-agent/summarize/url` | Summarize a website or YouTube URL |
+| POST | `/api/ai-agent/question/url` | Ask a question about URL content |
+| POST | `/api/ai-agent/summarize/file` | Summarize an uploaded file |
+| GET | `/ai-agent/health` | AI API health check |
 
----
+**Institutional Emails**
 
-## 📚 Modules
-
-### 1. Google Authentication Flow
-
-```
-User clicks "Connect Google"
-    → GoogleAuthController::redirect()
-    → GoogleClientService::getAuthUrl()
-    → Redirect to Google OAuth page
-    → User grants permissions
-    → Google redirects to /auth/google/callback
-    → GoogleAuthController::callback()
-    → GoogleClientService::storeToken()  ← saves access_token + refresh_token to DB
-    → User is now connected
-```
-
-Tokens are stored per-user in the `google_tokens` table. When a token expires, `GoogleClientService::refreshToken()` automatically gets a new one using the `refresh_token`.
-
----
-
-### 2. Google Calendar
-
-**Routes:**
-```
-GET  /calendar/view       → Show calendar UI
-GET  /calendar            → List events (JSON)
-POST /calendar            → Create event (JSON)
-PUT  /calendar/{eventId}  → Update event (JSON)
-DEL  /calendar/{eventId}  → Delete event (JSON)
-GET  /calendar/{eventId}  → Get single event (JSON)
-```
-
-**Creating an event with Google Meet:**
-```javascript
-fetch('/calendar', {
-    method: 'POST',
-    body: JSON.stringify({
-        title: 'Team Meeting',
-        start_time: '2025-12-01T10:00',
-        end_time: '2025-12-01T11:00',
-        timezone: 'Asia/Karachi',
-        description: 'Weekly sync',
-        create_meet: true  // ← generates Google Meet link
-    })
-})
-```
-
----
-
-### 3. Google Classroom
-
-Full resource management:
-
-```
-GET  /classroom/courses              → List all courses
-POST /classroom/courses              → Create course
-GET  /classroom/courses/{id}         → View course
-PUT  /classroom/courses/{id}         → Update course
-DEL  /classroom/courses/{id}         → Archive course
-
-GET  /classroom/courses/{id}/students         → List students
-POST /classroom/courses/{id}/students         → Add student
-DEL  /classroom/courses/{id}/students/{sid}   → Remove student
-
-POST /classroom/courses/{id}/coursework/{cid}/submissions/{sub}/grade → Grade submission
-```
-
----
-
-### 4. YouTube Upload
-
-The upload process handles large files using **chunked uploading** (1MB per chunk):
-
-```
-1. Validate file (max 128MB, mp4/mov/avi/wmv/mpeg/webm)
-2. Validate thumbnail (max 2MB, min 640×360px, jpg/png)
-3. Create VideoSnippet (title, description, tags)
-4. Create VideoStatus (public/unlisted/private)
-5. Initiate chunked upload to YouTube API
-6. Read video file in 1MB chunks → upload each chunk
-7. Upload thumbnail separately
-8. Add to playlist if selected
-9. Return success with video ID
-```
-
----
-
-### 5. NADRA Records
-
-Import Excel files with identity records:
-
-```
-1. Upload Excel file (max 10MB)
-2. Select category for this batch
-3. FileUpload record created in DB
-4. NadraImport class processes each row
-5. CNIC format validated (12345-1234567-1)
-6. Duplicate detection within same file
-7. Records saved to nadra_records table
-8. Update total_records count on FileUpload
-```
-
-Supports partial success — if some rows fail validation, valid rows are still imported.
-
----
-
-### 6. Database Backup
-
-Three backup methods available:
-
-```php
-// Method 1: Fast (requires mysqldump in PATH)
-$backupService->createBackupUsingMysqldump();
-
-// Method 2: Pure PHP (shared hosting friendly)
-$backupService->createBackupUsingLaravel();
-
-// Method 3: Compressed (saves 70-90% disk space)
-$backupService->createCompressedBackup();
-
-// Upload to Google Drive
-$driveService->uploadBackupFile($user, $backupPath, $fileName, $folderId);
-```
-
----
-
-## 🌐 API Endpoints
-
-### AI Agent API
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/ai-agent/summarize/url` | Summarize website or YouTube URL |
-| POST | `/api/ai-agent/question/url` | Ask question about URL content |
-| POST | `/api/ai-agent/summarize/file` | Summarize uploaded file |
-| POST | `/api/ai-agent/question/file` | Ask question about uploaded file |
-| GET  | `/ai-agent/health` | Check AI API health status |
-
-### Admin Management API
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/admin-management/create-email` | Create single institutional email |
-| POST | `/admin-management/create-from-module` | Batch create from LAMS system |
+| Method | Route | Description |
+|--------|-------|--------------|
+| POST | `/admin-management/create-email` | Create a single institutional email |
+| POST | `/admin-management/create-from-module` | Batch-create from an external system |
 | POST | `/admin-management/webhook/create-email` | Webhook auto-creation |
-| GET  | `/admin-management/email-status/{userId}` | Get email status |
+| GET | `/admin-management/email-status/{userId}` | Get email status |
 
-### WhatsApp
+**WhatsApp**
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
+| Method | Route | Description |
+|--------|-------|--------------|
 | POST | `/whatsapp/webhook` | Receive incoming messages (public) |
-| POST | `/whatsapp/send` | Send a WhatsApp message |
-| GET  | `/whatsapp` | List all conversations |
-| GET  | `/whatsapp/{number}` | Get conversation with a number |
+| POST | `/whatsapp/send` | Send a message |
+| GET | `/whatsapp/{number}` | Get conversation history |
 
----
+## Roadmap
 
-## 🗃️ Database Structure
+- [x] Google OAuth + per-user token storage
+- [x] Calendar, Classroom, Drive, Gmail, YouTube integrations
+- [x] Institutional email batch creation + webhooks
+- [x] NADRA Excel import with validation
+- [x] WhatsApp messaging via Twilio
+- [x] Triple-strategy database backup to Drive
+- [ ] Admin activity audit log UI
+- [ ] Public REST API with API-key auth
+- [ ] Bulk Classroom roster import from CSV
 
-Key tables used by this application:
+## Why This Project Exists
 
-```sql
--- Google OAuth tokens per user
-google_tokens
-  - user_id (FK → users)
-  - access_token
-  - refresh_token
-  - expires_at
+Managing Google Workspace by hand doesn't scale past a handful of accounts. WorkspaceBridge exists so an institution can create accounts, run classrooms, and back up data from one authenticated admin panel instead of juggling the Admin Console, Classroom UI, and Drive separately.
 
--- Institutional email records
-institutional_emails
-  - user_id
-  - username
-  - email
-  - first_name, last_name
-  - department
-  - google_user_id
-  - status (active/suspended)
-  - password (temporary)
-  - google_response (JSON)
-  - email_created_at
-  - last_synced_at
+## Future Improvements
 
--- NADRA identity records
-nadra_records
-  - full_name, father_name
-  - gender, date_of_birth
-  - cnic_number (unique per file)
-  - family_id
-  - addresses, province, district
-  - file_upload_id (FK)
+- **Queue long-running jobs** (YouTube uploads, bulk email creation) instead of blocking the request
+- **Redis-backed caching** for Classroom rosters and Drive file listings
+- **Dockerized setup** for a one-command local environment
+- **Public API layer** so LAMS-style systems can integrate without a webhook round-trip
 
--- Excel file upload batches
-file_uploads
-  - original_filename
-  - stored_filename
-  - category
-  - total_records
-  - uploaded_at
-
--- WhatsApp messages
-messages
-  - user_id (nullable)
-  - from, to (phone numbers)
-  - body
-  - direction (inbound/outbound)
-```
-
----
-
-## 🔒 Security
-
-This project implements multiple security layers:
-
-| Security Feature | Implementation |
-|----------------|----------------|
-| Authentication | Laravel Auth + 2FA TOTP |
-| Authorization | Spatie RBAC (roles + permissions) |
-| Google Token | Per-user, stored encrypted, auto-refreshed |
-| Webhook Security | HMAC-SHA256 signature validation |
-| File Upload | Strict MIME type + size validation |
-| SQL Injection | Eloquent ORM + parameterized queries |
-| CSRF | Laravel CSRF tokens on all forms |
-| Rate Limiting | Google API retry with exponential backoff |
-| Input Validation | Form Requests + Validator facade |
-
-### Webhook Signature Validation
-
-```php
-// Incoming webhook requests are verified with:
-$computedSignature = 'sha256=' . hash_hmac('sha256', $payload, $secret);
-hash_equals($computedSignature, $signature);  // timing-safe comparison
-```
-
-### Google API Retry Logic
-
-API calls to Google automatically retry on:
-- `429` Rate Limit Exceeded
-- `500`, `502`, `503`, `504` Server Errors  
-- Network timeout/connection errors
-
-With **exponential backoff**: waits 1s, 2s, 4s between retries.
-
----
-
-## 📁 File Storage
-
-Uploaded files and backups are stored in Laravel's `storage/app/` directory:
+## Contributing
 
 ```
-storage/
-└── app/
-    ├── backups/          ← Database backup files (.sql, .sql.gz)
-    └── public/           ← Public files (if any)
+# 1. Fork the repository, then:
+git checkout -b feature/your-feature
+# 2. Follow the existing Controller → Service pattern
+# 3. Add validation via Form Requests
+git commit -m "Add: your feature"
+git push origin feature/your-feature
+# 4. Open a Pull Request
 ```
 
-Run `php artisan storage:link` to create the public symlink.
+Follow PSR-12, use type declarations, wrap service calls in try-catch, and log important actions with `Log::info()` / `Log::error()`.
+
+## Support
+
+Found a bug or have a feature request? [Open an issue](https://github.com/sm-altamash/WorkspaceBridge/issues).
+
+[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/sm-altamash)
+
+## Buy Me a Coffee
+
+If WorkspaceBridge helped you, consider supporting more projects like it:
+
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-FFDD00?style=for-the-badge&logo=buymeacoffee&logoColor=black)](https://buymeacoffee.com/sm.altamash)
+
+## License
+
+This project is licensed under the [MIT License](LICENSE) — free to use, modify, and distribute.
 
 ---
 
-## 🧪 Testing the Setup
+**⭐ If this project helped you, consider starring the repo.**
 
-After installation, verify everything works:
-
-```bash
-# 1. Check if the app loads
-php artisan serve
-# Open http://localhost:8000
-
-# 2. Test Google connection
-# → Log in → Go to /auth/google → Connect your account
-
-# 3. Test Calendar
-# → Go to /calendar/view → Should see calendar UI
-
-# 4. Test AI Agent health
-# → GET /ai-agent/health → Should return { healthy: true }
-
-# 5. Test NADRA import
-# → Go to /nadra → Upload a sample Excel file
-```
-
----
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch: `git checkout -b feature/your-feature`
-3. Follow the existing pattern: Controller → Service
-4. Add validation using Form Requests
-5. Commit your changes: `git commit -m 'Add some feature'`
-6. Push to the branch: `git push origin feature/your-feature`
-7. Open a Pull Request
-
-### Code Style
-
-- Follow **PSR-12** PHP coding standards
-- Use **type declarations** on method parameters and return types
-- Always wrap service calls in **try-catch**
-- Log all important actions using `Log::info()` and errors with `Log::error()`
-- Use **DB transactions** (`DB::beginTransaction()`) for multi-step database operations
-
----
-
-## 📄 License
-
-This project is open-sourced software licensed under the [MIT license](LICENSE).
-
----
-
-## 👨‍💻 Author
-
-**SM Altamash**  
-GitHub: [@sm-altamash](https://github.com/sm-altamash)  
-Repository: [WorkspaceBridge](https://github.com/sm-altamash/WorkspaceBridge)
-
----
-
-## 🙏 Acknowledgments
-
-- [Google API PHP Client](https://github.com/googleapis/google-api-php-client)
-- [Spatie Laravel Permission](https://github.com/spatie/laravel-permission)
-- [Maatwebsite Laravel Excel](https://laravel-excel.com)
-- [Yajra DataTables](https://yajrabox.com/docs/laravel-datatables)
-- [Twilio PHP SDK](https://github.com/twilio/twilio-php)
-- [Laravel Framework](https://laravel.com)
-
----
-
-> **Built with ❤️ using Laravel + Google Workspace APIs**
+Built with Laravel by [**SM Altamash**](https://github.com/sm-altamash)
