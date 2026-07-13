@@ -41,11 +41,6 @@ It's a complete integration platform: administrators create institutional email 
 
 > **Built for:** institutions (originally Lahore Leads University) that need deep, auditable Google Workspace automation — and for anyone evaluating this repo who wants to see how I structure a multi-service integration codebase in Laravel.
 
-## Screenshots
-
-> Add screenshots of the admin dashboard, Calendar view, Classroom module, and YouTube upload flow here, e.g.:
-> `docs/screenshots/dashboard.png` · `docs/screenshots/calendar.png` · `docs/screenshots/classroom.png`
-
 ## Features
 
 **🔐 Authentication & Security**
