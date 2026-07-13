@@ -23,6 +23,8 @@
 - [Google API Setup](#google-api-setup)
 - [Configuration](#configuration)
 - [API Reference](#api-reference)
+- [Automated Backups & Cron Setup](#automated-backups--cron-setup)
+- [Troubleshooting](#troubleshooting)
 - [Roadmap](#roadmap)
 - [Why This Project Exists](#why-this-project-exists)
 - [Future Improvements](#future-improvements)
@@ -86,9 +88,17 @@ It's a complete integration platform: administrators create institutional email 
 - Webhook-driven auto-creation with status sync
 - Import identity records from Excel/CSV with CNIC validation and duplicate detection
 
-**💬 WhatsApp & 🗄️ Backups**
-- Two-way WhatsApp messaging via Twilio, with conversation history
-- Three backup strategies (`mysqldump`, pure PHP, gzip-compressed), auto-uploaded to Drive
+**💬 WhatsApp (Twilio)**
+- Two-way WhatsApp messaging via the **Twilio API** — send from the admin panel, receive via webhook
+- Full conversation history per phone number, with **auto-reply** on incoming messages
+- Inbound messages verified and logged before being written to the conversation thread
+
+**🗄️ Automated Database Backups**
+- Three backup strategies — `mysqldump` (fastest), pure Laravel DB Facade (shared-hosting friendly), and gzip-compressed (up to 90% smaller)
+- **Cron-driven**, running automatically every 5 hours with no manual trigger
+- Auto-uploads to a dedicated **Google Drive** folder, then cleans up local copies
+- Secured with an `X-API-Key` header, independent of the main admin session
+- Backup history endpoint to browse and verify past runs
 
 ## Architecture
 
@@ -396,9 +406,95 @@ WEBHOOK_SECRET=your-random-secret-key
 
 | Method | Route | Description |
 |--------|-------|--------------|
-| POST | `/whatsapp/webhook` | Receive incoming messages (public) |
+| POST | `/whatsapp/webhook` | Receive incoming messages (public), triggers auto-reply |
 | POST | `/whatsapp/send` | Send a message |
-| GET | `/whatsapp/{number}` | Get conversation history |
+| GET | `/whatsapp` | List all conversations |
+| GET | `/whatsapp/{number}` | Get conversation history with a number |
+
+## Automated Backups & Cron Setup
+
+Database backups run independently of the main admin session, secured by their own API key rather than a logged-in user — so a cron job on cPanel (or anywhere else) can trigger them without a browser in the loop.
+
+**Flow**
+
+```
+Cron Job (cPanel / PHP) → POST /api/backup/create
+→ ApiKeyMiddleware (validates X-API-Key)
+→ BackupController
+   ├─ DatabaseBackupService (creates & compresses the SQL dump)
+   ├─ GoogleDriveService (uploads to Drive, chunked if >100MB)
+   └─ Cleanup (removes local copy) + JSON response
+→ Log file + Google Drive folder
+```
+
+**Backup routes**
+
+| Method | Route | Description |
+|--------|-------|--------------|
+| POST | `/api/backup/create` | Create a backup and upload it to Drive |
+| GET | `/api/backup/history` | List stored backups for a user |
+
+**Trigger a backup manually**
+
+```bash
+curl -X POST https://yourdomain.com/api/backup/create \
+  -H "X-API-Key: your-secret-key" \
+  -H "Content-Type: application/json" \
+  -d '{"user_id":1,"compress":true,"delete_local":true}'
+```
+
+```json
+{
+  "success": true,
+  "message": "Backup completed and uploaded successfully",
+  "data": {
+    "backup_file": "backup_2026-07-13_14-30-45.sql.gz",
+    "backup_size": "15.5 MB",
+    "drive_link": "https://drive.google.com/file/d/xyz/view"
+  }
+}
+```
+
+**Cron entry — runs every 5 hours**
+
+```bash
+0 */5 * * * /usr/bin/php /home/username/backup-cron.php >> /home/username/backup-cron.log 2>&1
+```
+
+```php
+// backup-cron.php
+$ch = curl_init('https://yourdomain.com/api/backup/create');
+curl_setopt_array($ch, [
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_POST => true,
+    CURLOPT_POSTFIELDS => json_encode(['user_id' => 1, 'compress' => true, 'delete_local' => true]),
+    CURLOPT_HTTPHEADER => [
+        'X-API-Key: your-secret-key',
+        'Content-Type: application/json',
+    ],
+]);
+echo curl_exec($ch);
+curl_close($ch);
+```
+
+**Backup security & performance notes**
+
+- Keep `BACKUP_API_KEY` out of version control and rotate it periodically
+- Restrict the backup endpoint by IP where possible, and always call it over HTTPS
+- Store Drive tokens in the database (encrypted), never in flat files
+- Keep a rolling window of local backups (e.g. last 7) and let Drive hold the long-term history
+- Schedule cron runs during low-traffic hours to avoid competing with live queries
+
+## Troubleshooting
+
+| Issue | Likely Cause | Fix |
+|-------|---------------|-----|
+| `Unauthorized` on backup endpoint | Wrong or missing API key | Check `.env` `BACKUP_API_KEY` matches the cron script's header |
+| Backup uploads fail with no Drive file | Google token missing or expired | Reconnect via `/auth/google`, confirm refresh token is stored |
+| `mysqldump not found` | Binary not on PATH | Run `which mysqldump` and update the path in `DatabaseBackupService` |
+| `Permission denied` running cron script | File not executable | `chmod +x backup-cron.php` |
+| `Memory exhausted` on large databases | Backup loaded into memory instead of streamed | Use the `mysqldump` strategy with compression instead of the pure-PHP method |
+| WhatsApp messages not arriving | Webhook URL not verified in Twilio console | Re-check the webhook URL and signature validation logic |
 
 ## Roadmap
 
@@ -407,7 +503,7 @@ WEBHOOK_SECRET=your-random-secret-key
 - [x] Institutional email batch creation + webhooks
 - [x] NADRA Excel import with validation
 - [x] WhatsApp messaging via Twilio
-- [x] Triple-strategy database backup to Drive
+- [x] Triple-strategy database backup to Drive, running on a cron schedule
 - [ ] Admin activity audit log UI
 - [ ] Public REST API with API-key auth
 - [ ] Bulk Classroom roster import from CSV
